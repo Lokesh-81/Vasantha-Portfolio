@@ -212,6 +212,25 @@ export function StudioSettings() {
               <span>{copiedSql === '003' ? 'Copied' : 'Copy'}</span>
             </button>
           </div>
+
+          <div className="rounded-xl border border-blue-900/60 bg-[#0B132B] p-4 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold text-blue-300 font-mono">004_fix_permissions.sql (Table Grants)</p>
+              <p className="text-[11px] text-[#94A3B8]">Fixes "permission denied for table profiles" by granting SQL privileges to authenticated users.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleCopy('004', `GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;`)}
+              className="flex items-center gap-1.5 rounded-lg border border-blue-600 bg-blue-600/20 px-3 py-1.5 text-xs font-mono text-blue-200 hover:bg-blue-600 hover:text-white transition-colors"
+            >
+              {copiedSql === '004' ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+              <span>{copiedSql === '004' ? 'Copied' : 'Copy SQL'}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

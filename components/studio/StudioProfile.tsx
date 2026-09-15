@@ -1,9 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, Mail, Phone, MapPin, Linkedin, Save, AlertCircle, CheckCircle2, Upload, RefreshCw } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Linkedin, Save, AlertCircle, CheckCircle2, Upload, RefreshCw, Copy, Check, FileCode } from 'lucide-react';
 import { usePortfolio } from '@/lib/portfolio-context';
 import { updateProfile, uploadStorageFile } from '@/lib/supabase/api';
+
+const FIX_PERMISSIONS_SQL = `-- Grant full permissions to Supabase authenticated user
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO anon, authenticated, service_role;`;
 
 export function StudioProfile() {
   const { profile, refreshData } = usePortfolio();
@@ -26,6 +33,13 @@ export function StudioProfile() {
   const [error, setError] = useState<string | null>(null);
 
   const [imageUrlInput, setImageUrlInput] = useState(profile.profileImageUrl || '');
+  const [copiedFix, setCopiedFix] = useState(false);
+
+  const handleCopySqlFix = () => {
+    navigator.clipboard.writeText(FIX_PERMISSIONS_SQL);
+    setCopiedFix(true);
+    setTimeout(() => setCopiedFix(false), 3000);
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,12 +164,43 @@ export function StudioProfile() {
         </div>
       )}
 
-      {error && (
+      {error && error.toLowerCase().includes('permission denied') ? (
+        <div className="rounded-2xl border border-amber-800/60 bg-amber-950/40 p-5 text-xs text-amber-200 space-y-3">
+          <div className="flex items-start gap-2.5">
+            <AlertCircle className="h-5 w-5 shrink-0 text-amber-400 mt-0.5" />
+            <div>
+              <p className="font-semibold text-white text-sm">
+                Supabase Database Permission Required
+              </p>
+              <p className="text-[#CBD5E1] text-xs mt-1">
+                Your changes have been safely cached in your browser. However, PostgreSQL requires granting table write permissions to the <code className="text-amber-300 font-mono">authenticated</code> role in Supabase.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-amber-900/60 bg-[#0B132B] p-3">
+            <div className="flex items-center justify-between pb-2 border-b border-gray-800 mb-2">
+              <span className="text-[11px] font-mono text-gray-400">Run in Supabase Dashboard → SQL Editor:</span>
+              <button
+                type="button"
+                onClick={handleCopySqlFix}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] px-3 py-1 text-xs font-semibold text-white transition-colors cursor-pointer"
+              >
+                {copiedFix ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                <span>{copiedFix ? 'Copied to Clipboard!' : 'Copy SQL Fix'}</span>
+              </button>
+            </div>
+            <pre className="text-[11px] font-mono text-amber-300/90 overflow-x-auto whitespace-pre">
+              {FIX_PERMISSIONS_SQL}
+            </pre>
+          </div>
+        </div>
+      ) : error ? (
         <div className="rounded-2xl border border-rose-800/60 bg-rose-950/40 p-4 text-xs text-rose-300 flex items-center gap-2">
           <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
           <span>{error}</span>
         </div>
-      )}
+      ) : null}
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Profile Image Section */}
