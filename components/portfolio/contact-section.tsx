@@ -21,6 +21,7 @@ import { TextEffect } from '@/components/core/text-effect';
 import { Spotlight } from '@/components/core/spotlight';
 import { useLanguage } from '@/src/i18n';
 import { profileData } from '@/lib/data/portfolio-data';
+import { submitContactMessage } from '@/lib/supabase/api';
 
 export function ContactSection() {
   const { t, language } = useLanguage();
@@ -94,8 +95,20 @@ export function ContactSection() {
     setStatus('submitting');
     setErrorMessage(null);
 
-    // Simulate reliable dispatch
-    setTimeout(() => {
+    try {
+      const res = await submitContactMessage({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        subject: form.topic,
+        message: form.message.trim(),
+      });
+
+      if (!res.success) {
+        setErrorMessage(res.message || 'Unable to submit your message right now.');
+        setStatus('error');
+        return;
+      }
+
       setStatus('success');
       setForm({
         name: '',
@@ -105,8 +118,11 @@ export function ContactSection() {
       });
       setTimeout(() => {
         setStatus('idle');
-      }, 5000);
-    }, 800);
+      }, 6000);
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Something went wrong. Please reach out directly to peralavasantha08@gmail.com');
+      setStatus('error');
+    }
   };
 
   return (

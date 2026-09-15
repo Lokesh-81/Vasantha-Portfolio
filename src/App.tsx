@@ -14,8 +14,9 @@ import { ContactSection } from '@/components/portfolio/contact-section';
 import { Footer } from '@/components/portfolio/footer';
 import { Spotlight } from '@/components/core/spotlight';
 import { Clock } from '@/components/core/sliding-number';
+import { StudioApp } from '@/components/studio/StudioApp';
 
-export type SectionId = 'home' | 'about' | 'projects' | 'work' | 'skills' | 'experience' | 'contact';
+export type SectionId = 'home' | 'about' | 'projects' | 'work' | 'skills' | 'experience' | 'contact' | 'studio';
 
 function PortfolioContent() {
   const [activeSection, setActiveSection] = useState<SectionId>('home');
@@ -25,7 +26,12 @@ function PortfolioContent() {
     if (typeof window !== 'undefined') {
       const handleHash = () => {
         const hash = window.location.hash.replace('#', '') as SectionId;
-        if (['home', 'about', 'projects', 'work', 'skills', 'experience', 'contact'].includes(hash)) {
+        const pathname = window.location.pathname;
+        if (pathname.startsWith('/studio') || hash === 'studio') {
+          setActiveSection('studio');
+          return;
+        }
+        if (['home', 'about', 'projects', 'work', 'skills', 'experience', 'contact', 'studio'].includes(hash)) {
           setActiveSection(hash === 'work' ? 'projects' : hash);
         }
       };
@@ -42,6 +48,11 @@ function PortfolioContent() {
       window.history.replaceState(null, '', `#${validSection}`);
     }
   };
+
+  // If in Studio mode, render the Admin Studio interface directly
+  if (activeSection === 'studio') {
+    return <StudioApp onExit={() => handleNavigate('home')} />;
+  }
 
   // Determine current active section for dock indicator
   const dockActiveSection = activeSection === 'work' ? 'projects' : activeSection;

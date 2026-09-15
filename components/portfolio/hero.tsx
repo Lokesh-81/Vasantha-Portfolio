@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ArrowRight,
   Mail,
@@ -10,12 +10,15 @@ import {
   Cpu,
   GraduationCap,
   Award,
+  Download,
+  FileText,
 } from 'lucide-react';
 import { TextEffect } from '@/components/core/text-effect';
 import { TextLoop } from '@/components/core/text-loop';
 import { Spotlight } from '@/components/core/spotlight';
 import { useLanguage } from '@/src/i18n';
 import { profileData } from '@/lib/data/portfolio-data';
+import { usePortfolio } from '@/lib/portfolio-context';
 
 export interface HeroProps {
   onNavigate?: (section: string) => void;
@@ -23,6 +26,8 @@ export interface HeroProps {
 
 export function Hero({ onNavigate }: HeroProps) {
   const { t, language } = useLanguage();
+  const { resumeUrl } = usePortfolio();
+  const [resumeNotice, setResumeNotice] = useState(false);
 
   return (
     <div id="hero" className="relative w-full px-4 sm:px-8 pt-8 sm:pt-12 pb-12 flex flex-col justify-start">
@@ -120,6 +125,42 @@ export function Hero({ onNavigate }: HeroProps) {
             <User className="h-4 w-4 text-[#C084FC]" />
             <span>{t('hero.ctaAbout', 'About Me')}</span>
           </button>
+
+          {/* Download Resume Button */}
+          {resumeUrl ? (
+            <a
+              id="hero-download-resume-btn"
+              href={resumeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+              className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-950/20 px-4 py-3 text-sm font-medium text-emerald-300 hover:border-emerald-500/60 hover:bg-emerald-950/40 transition-all cursor-pointer"
+            >
+              <Download className="h-4 w-4 text-emerald-400" />
+              <span>Download Resume</span>
+            </a>
+          ) : (
+            <div className="relative">
+              <button
+                id="hero-download-resume-btn"
+                type="button"
+                onClick={() => {
+                  setResumeNotice(true);
+                  setTimeout(() => setResumeNotice(false), 3000);
+                }}
+                className="flex items-center gap-2 rounded-xl border border-[#1F2937] bg-[#111827]/60 px-4 py-3 text-sm font-medium text-[#94A3B8] hover:text-white hover:border-[#334155] transition-all cursor-pointer"
+              >
+                <FileText className="h-4 w-4 text-[#64748B]" />
+                <span>Download Resume</span>
+              </button>
+
+              {resumeNotice && (
+                <div className="absolute top-full left-0 mt-2 z-50 whitespace-nowrap rounded-xl border border-amber-500/40 bg-[#0B132B] px-3.5 py-1.5 text-xs font-mono text-amber-300 shadow-xl">
+                  Resume coming soon.
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Highlighted Engineering Details Cards */}
