@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Shield, Mail, Lock, LogIn, UserPlus, AlertCircle, ArrowLeft, CheckCircle2, Settings, Key, Link as LinkIcon } from 'lucide-react';
+import { Shield, Mail, Lock, LogIn, UserPlus, AlertCircle, ArrowLeft, CheckCircle2, Settings, Key, Link as LinkIcon, Eye, EyeOff } from 'lucide-react';
 import { getSupabaseClient, isSupabaseConfigured, getSupabaseConfig, saveRuntimeSupabaseConfig } from '@/lib/supabase/client';
 
 interface StudioAuthProps {
@@ -13,6 +13,7 @@ export function StudioAuth({ onSuccess, onExit }: StudioAuthProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -95,7 +96,11 @@ export function StudioAuth({ onSuccess, onExit }: StudioAuthProps) {
     } catch (err: any) {
       console.error('Auth error:', err);
       const msg = err?.message || String(err);
-      if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('fetch')) {
+      if (msg.toLowerCase().includes('email not confirmed')) {
+        setErrorMessage(
+          'Email not confirmed yet! Supabase sent a verification link to your email. You can also confirm it immediately in Supabase Dashboard: go to Authentication → Users → click "..." next to your email → "Confirm user".'
+        );
+      } else if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('fetch')) {
         setErrorMessage(
           `Connection to Supabase failed ("Failed to fetch"). Your current project URL is "${config.url || 'EMPTY'}". Please verify that your Supabase URL begins with https:// (not postgresql://) and that Vercel has been redeployed. You can also click "Configure Connection" below to set or fix it directly.`
         );
@@ -193,13 +198,22 @@ export function StudioAuth({ onSuccess, onExit }: StudioAuthProps) {
             <div className="relative">
               <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-[#64748B]" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full rounded-xl border border-[#1F2937] bg-[#0B132B]/80 pl-10 pr-4 py-3 text-sm text-white placeholder-[#475569] outline-none transition-all focus:border-[#60A5FA] focus:ring-1 focus:ring-[#60A5FA]"
+                className="w-full rounded-xl border border-[#1F2937] bg-[#0B132B]/80 pl-10 pr-11 py-3 text-sm text-white placeholder-[#475569] outline-none transition-all focus:border-[#60A5FA] focus:ring-1 focus:ring-[#60A5FA]"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-3.5 text-[#64748B] hover:text-[#E0E7FF] transition-colors cursor-pointer"
+                title={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
 
