@@ -79,9 +79,9 @@ export const profileData = {
   telUrl: "tel:+919550139722",
   linkedinUrl: "https://www.linkedin.com/in/vasantha-perala-050ba034a/",
   locationDisplay: "Hyderabad (IST · UTC+5:30)",
-  heroBio: "An enthusiastic Electrical and Electronics Engineering student interested in power systems, renewable energy, and software technologies, with a strong interest in learning and solving real-world problems.",
-  aboutBio: "Enthusiastic Electrical and Electronics Engineering student with an interest in power systems, renewable energy, and software technologies. Passionate about learning, problem-solving, and applying technical knowledge to real-world engineering challenges.",
-  aboutSubDescription: "I focus on power systems simulation, renewable energy integration, and smart embedded hardware—combining core electrical principles with modern software tools to solve real-world engineering problems.",
+  heroBio: "Aspiring engineer passionate about exploring opportunities in both Electrical Engineering and the IT sector, driven to learn and solve real-world problems across core systems and software.",
+  aboutBio: "Enthusiastic engineer with an active interest across both Electrical Engineering and the IT software sector. Passionate about learning, problem-solving, and applying technical skills to real-world challenges in both domains.",
+  aboutSubDescription: "I focus on power systems simulation, renewable energy integration, and software development—combining core electrical principles with modern IT technologies to build impactful solutions.",
   interests: [
     "Power Systems",
     "Renewable Energy",

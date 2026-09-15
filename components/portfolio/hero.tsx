@@ -14,7 +14,6 @@ import {
 import { TextEffect } from '@/components/core/text-effect';
 import { TextLoop } from '@/components/core/text-loop';
 import { Spotlight } from '@/components/core/spotlight';
-import { BorderTrail } from '@/components/core/border-trail';
 import { useLanguage } from '@/src/i18n';
 import { profileData } from '@/lib/data/portfolio-data';
 
@@ -85,25 +84,22 @@ export function Hero({ onNavigate }: HeroProps) {
           </div>
         </div>
 
-        {/* Hero Bio Details */}
-        <p className="mt-4 sm:mt-5 max-w-3xl text-sm sm:text-base leading-relaxed text-[#CBD5E1]">
+        {/* Hero Bio Details - 2 lines on desktop */}
+        <p className="mt-4 sm:mt-5 max-w-2xl text-sm sm:text-base leading-relaxed text-[#CBD5E1]">
           {profileData.heroBio}
         </p>
 
         {/* Action CTAs */}
         <div className="mt-6 sm:mt-8 flex flex-wrap items-center gap-3.5">
-          {/* Primary CTA with BorderTrail */}
-          <div className="relative rounded-xl overflow-hidden p-[1px]">
-            <BorderTrail size={80} transition={{ duration: 4, repeat: Infinity }} />
-            <button
-              id="hero-explore-projects-btn"
-              onClick={() => onNavigate?.('projects')}
-              className="relative flex items-center gap-2 rounded-xl bg-[#2563EB] px-5 py-3 text-sm font-semibold text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all hover:bg-[#1D4ED8] hover:shadow-[0_0_25px_rgba(37,99,235,0.6)] cursor-pointer"
-            >
-              <span>{t('hero.ctaWork', 'Explore My Work')}</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
+          {/* Primary CTA with full 360-degree luminous glow */}
+          <button
+            id="hero-explore-projects-btn"
+            onClick={() => onNavigate?.('projects')}
+            className="group relative flex items-center gap-2 rounded-xl bg-[#2563EB] px-5 py-3 text-sm font-semibold text-white border border-[#60A5FA]/80 shadow-[0_0_24px_rgba(37,99,235,0.6)] ring-1 ring-[#93C5FD]/30 transition-all hover:bg-[#1D4ED8] hover:border-[#BFDBFE] hover:shadow-[0_0_32px_rgba(59,130,246,0.85)] cursor-pointer"
+          >
+            <span>{t('hero.ctaWork', 'Explore My Work')}</span>
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </button>
 
           {/* Secondary CTA: Get In Touch */}
           <button

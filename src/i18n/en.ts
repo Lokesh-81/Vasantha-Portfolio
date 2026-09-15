@@ -17,7 +17,7 @@ export const en = {
   'hero.imA': "Interested in",
   'hero.titleLine': 'Electrical & Electronics Engineering Student',
   'hero.bio':
-    'An enthusiastic Electrical and Electronics Engineering student interested in power systems, renewable energy, and software technologies, with a strong interest in learning and solving real-world problems.',
+    'Aspiring engineer passionate about exploring opportunities in both Electrical Engineering and the IT sector, driven to learn and solve real-world problems across core systems and software.',
   'hero.ctaWork': 'Explore My Work',
   'hero.ctaContact': "Let's Connect",
   'hero.ctaAbout': 'About Me',
