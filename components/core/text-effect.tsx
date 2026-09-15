@@ -82,6 +82,7 @@ export function TextEffect({
   const itemVariants: Variants = variants?.item || defaultItemVariants;
 
   const segments = React.useMemo(() => {
+    if (!children) return [];
     if (per === 'line') {
       return children.split('\n');
     }
@@ -89,8 +90,16 @@ export function TextEffect({
       return children.split(/(\s+)/);
     }
     // per === 'char'
-    // Split into characters, keeping spaces identifiable
-    return children.split('');
+    // Split safely by Unicode grapheme clusters for Indic scripts and accented characters
+    if (typeof Intl !== 'undefined' && (Intl as any).Segmenter) {
+      try {
+        const segmenter = new (Intl as any).Segmenter(undefined, { granularity: 'grapheme' });
+        return Array.from(segmenter.segment(children), (s: any) => s.segment);
+      } catch {
+        // fallback
+      }
+    }
+    return Array.from(children);
   }, [children, per]);
 
   const MotionComponent = motion[Component as keyof typeof motion] || motion.span;

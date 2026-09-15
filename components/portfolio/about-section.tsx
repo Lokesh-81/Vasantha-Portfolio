@@ -73,12 +73,12 @@ export function AboutSection() {
         <div className="flex flex-col justify-between gap-4 border-b border-[#1F2937] pb-8 md:flex-row md:items-end">
           <div>
             <div className="text-xs uppercase tracking-[0.25em] text-[#60A5FA] font-semibold">
-              <TextEffect key={`tag-${language}`} per="char" delay={0.05}>
+              <TextEffect key={`tag-${language}-${t('about.tag', 'ABOUT ME')}`} per="word" delay={0.05}>
                 {t('about.tag', 'ABOUT ME')}
               </TextEffect>
             </div>
             <h2 className="mt-1 text-3xl font-light tracking-tight text-[#E0E7FF] sm:text-5xl md:text-6xl">
-              <TextEffect key={`title-${language}`} per="word" delay={0.15}>
+              <TextEffect key={`title-${language}-${t('about.title', 'Driven by')}`} per="word" delay={0.15}>
                 {t('about.title', 'Driven by')}
               </TextEffect>{' '}
               <span className="instrument italic font-normal text-[#60A5FA]">
@@ -88,7 +88,7 @@ export function AboutSection() {
           </div>
           <div className="max-w-md text-xs sm:text-sm leading-relaxed text-[#CBD5E1]">
             <p>
-              {profileData.aboutBio}
+              {t('about.subtitle', profileData.aboutBio)}
             </p>
           </div>
         </div>
@@ -101,14 +101,14 @@ export function AboutSection() {
               <div className="flex items-center gap-2.5 pb-4 border-b border-[#1F2937] text-white">
                 <Layers className="h-5 w-5 text-[#60A5FA]" />
                 <h3 className="text-lg font-semibold tracking-tight">
-                  Academic Focus & Engineering Philosophy
+                  {t('about.philosophyTitle', 'Academic Focus & Engineering Philosophy')}
                 </h3>
               </div>
               <p className="mt-4 text-sm sm:text-base leading-relaxed text-[#CBD5E1]">
-                {profileData.aboutSubDescription}
+                {t('about.subDescription', profileData.aboutSubDescription)}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-[#CBD5E1]/80">
-                During my academic journey at Malla Reddy Engineering College for Women, I have developed technical rigor in circuit analysis, dynamic power flow simulation, and embedded system design. My goal is to bridge classical electrical engineering fundamentals with modern computational software.
+                {t('about.subDescription2', 'During my academic journey at Malla Reddy Engineering College for Women, I have developed technical rigor in circuit analysis, dynamic power flow simulation, and embedded system design. My goal is to bridge classical electrical engineering fundamentals with modern computational software.')}
               </p>
 
               {/* Quick Info Grid */}
@@ -119,7 +119,7 @@ export function AboutSection() {
                   </span>
                   <p className="font-semibold text-xs text-[#E0E7FF] flex items-center gap-1">
                     <MapPin className="h-3 w-3 text-[#60A5FA]" />
-                    {profileData.location}
+                    {t('about.locationVal', profileData.location)}
                   </p>
                 </div>
                 <div className="space-y-1">
@@ -128,25 +128,25 @@ export function AboutSection() {
                   </span>
                   <p className="font-semibold text-xs text-[#E0E7FF] flex items-center gap-1">
                     <GraduationCap className="h-3 w-3 text-[#A5B4FC]" />
-                    B.Tech EEE (8.08)
+                    {t('hero.card1.val', 'B.Tech EEE (8.08)')}
                   </p>
                 </div>
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#64748B]">
-                    Specialization
+                    {t('about.specialization', 'Specialization')}
                   </span>
                   <p className="font-semibold text-xs text-[#E0E7FF] flex items-center gap-1">
                     <Zap className="h-3 w-3 text-[#FDE68A]" />
-                    Power & Renewables
+                    {t('about.specializationValue', 'Power & Renewables')}
                   </p>
                 </div>
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#64748B]">
-                    Languages
+                    {t('about.languages', 'Languages')}
                   </span>
                   <p className="font-semibold text-xs text-[#E0E7FF] flex items-center gap-1">
                     <Languages className="h-3 w-3 text-[#F472B6]" />
-                    4 Languages
+                    {t('about.languagesVal', '4 Languages')}
                   </p>
                 </div>
               </div>
@@ -158,11 +158,11 @@ export function AboutSection() {
                 <div className="flex items-center gap-2 text-white">
                   <Languages className="h-4 w-4 text-[#F472B6]" />
                   <h4 className="text-sm font-semibold tracking-wide">
-                    Communication Languages
+                    {t('about.languages', 'Communication Languages')}
                   </h4>
                 </div>
                 <span className="text-[11px] font-mono text-[#64748B]">
-                  Languages
+                  {t('nav.language', 'Languages')}
                 </span>
               </div>
               <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -183,7 +183,7 @@ export function AboutSection() {
           {/* Right Column: 3 Core Pillars */}
           <div className="lg:col-span-5 space-y-4">
             <div className="text-xs font-mono uppercase tracking-wider text-[#64748B] mb-2">
-              Engineering Core Competencies
+              {t('hero.card3.title', 'Engineering Core Competencies')}
             </div>
 
             {philosophies.map((phil) => {

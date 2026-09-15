@@ -75,12 +75,12 @@ export function SkillsSection() {
         <div className="flex flex-col justify-between gap-4 border-b border-[#1F2937] pb-8 md:flex-row md:items-end">
           <div>
             <div className="text-xs uppercase tracking-[0.25em] text-[#60A5FA] font-semibold">
-              <TextEffect key={`tag-${language}`} per="char" delay={0.05}>
+              <TextEffect key={`tag-${language}-${t('skills.tag', 'TECHNICAL PROFICIENCY')}`} per="word" delay={0.05}>
                 {t('skills.tag', 'TECHNICAL PROFICIENCY')}
               </TextEffect>
             </div>
             <h2 className="mt-1 text-3xl font-light tracking-tight text-[#E0E7FF] sm:text-5xl md:text-6xl">
-              <TextEffect key={`title-${language}`} per="word" delay={0.15}>
+              <TextEffect key={`title-${language}-${t('skills.title', 'Skills &')}`} per="word" delay={0.15}>
                 {t('skills.title', 'Skills &')}
               </TextEffect>{' '}
               <span className="instrument italic font-normal text-[#60A5FA]">
@@ -101,7 +101,7 @@ export function SkillsSection() {
         {/* Filter buttons */}
         <div className="mt-8 flex flex-wrap items-center gap-1.5">
           <span className="text-xs font-mono uppercase tracking-wider text-[#64748B] mr-2">
-            Filter:
+            {t('work.filter', 'Filter:')}
           </span>
           {skillCategories.map((cat) => (
             <button
@@ -113,7 +113,7 @@ export function SkillsSection() {
                   : 'border border-[#1F2937] bg-[#111827]/70 text-[#CBD5E1] hover:border-[#60A5FA]/40 hover:text-white'
               }`}
             >
-              {cat}
+              {cat === 'All' ? t('work.filter.all', 'All Skills') : cat}
             </button>
           ))}
         </div>

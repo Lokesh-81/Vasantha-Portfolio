@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { en } from './en';
-import { te, hi, fr } from './translations';
+import { te, hi, fr, es } from './translations';
 import { Language, LanguageOption, SUPPORTED_LANGUAGES, TranslationDictionary } from './types';
 
 export * from './types';
@@ -19,6 +19,7 @@ const dictionaries: Record<string, TranslationDictionary> = {
   te,
   hi,
   fr,
+  es,
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);

@@ -40,14 +40,14 @@ export function Hero({ onNavigate }: HeroProps) {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <span className="font-mono text-[11px] uppercase tracking-wider text-[#A5B4FC]">
-            {profileData.degree} · 2023–2027 · Hyderabad, India
+            {t('hero.statusBadge', 'B.Tech · EEE (2023–2027) · Hyderabad, India')}
           </span>
         </div>
 
         {/* Heading with TextEffect */}
         <div className="mt-1 max-w-4xl">
           <div className="text-xs sm:text-sm uppercase tracking-[0.25em] text-[#60A5FA] font-semibold mb-2">
-            <TextEffect key={`tag-${language}`} per="char" delay={0.05}>
+            <TextEffect key={`tag-${language}-${t('hero.roleTag', 'Electrical & Electronics Engineering')}`} per="word" delay={0.05}>
               {t('hero.roleTag', 'Electrical & Electronics Engineering')}
             </TextEffect>
           </div>
@@ -69,7 +69,7 @@ export function Hero({ onNavigate }: HeroProps) {
         {/* Dynamic Text Loop for genuine interests */}
         <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2 text-base sm:text-xl text-[#CBD5E1] font-light">
           <span className="text-[#A5B4FC]/90 font-mono text-xs uppercase tracking-wider">
-            Specializing in
+            {t('hero.specializingIn', 'Specializing in')}
           </span>
           <span className="text-[#334155]">/</span>
           <div className="inline-flex items-center font-medium text-[#F472B6]">
@@ -86,7 +86,7 @@ export function Hero({ onNavigate }: HeroProps) {
 
         {/* Hero Bio Details - 2 lines on desktop */}
         <p className="mt-4 sm:mt-5 max-w-2xl text-sm sm:text-base leading-relaxed text-[#CBD5E1]">
-          {profileData.heroBio}
+          {t('hero.bio', profileData.heroBio)}
         </p>
 
         {/* Action CTAs */}
@@ -129,14 +129,14 @@ export function Hero({ onNavigate }: HeroProps) {
             <div className="flex items-center gap-2 text-[#60A5FA] mb-2">
               <GraduationCap className="h-4 w-4" />
               <span className="font-mono text-[10px] uppercase tracking-wider text-[#A5B4FC]">
-                Degree & College
+                {t('hero.card1.title', 'Degree & College')}
               </span>
             </div>
             <p className="text-sm font-semibold text-white">
-              B.Tech EEE (2023–2027)
+              {t('hero.card1.val', 'B.Tech EEE (2023–2027)')}
             </p>
             <p className="text-xs text-[#CBD5E1] mt-0.5">
-              Malla Reddy Engineering College for Women
+              {t('hero.card1.sub', 'Malla Reddy Engineering College for Women')}
             </p>
           </div>
 
@@ -145,19 +145,19 @@ export function Hero({ onNavigate }: HeroProps) {
             <div className="flex items-center gap-2 text-emerald-400 mb-2">
               <Award className="h-4 w-4" />
               <span className="font-mono text-[10px] uppercase tracking-wider text-[#A5B4FC]">
-                Academic Standing
+                {t('hero.card2.title', 'Academic Standing')}
               </span>
             </div>
             <div className="flex items-baseline gap-2">
               <p className="text-sm font-bold text-white font-mono">
-                8.08 CGPA
+                {t('hero.card2.val', '8.08 CGPA')}
               </p>
               <span className="text-[10px] text-emerald-400 font-mono">
-                Current Degree
+                {t('hero.card2.tag', 'Current Degree')}
               </span>
             </div>
             <p className="text-xs text-[#CBD5E1] mt-0.5">
-              Intermediate: 84.7% · SSC: 9.8 CGPA
+              {t('hero.card2.sub', 'Intermediate: 84.7% · SSC: 9.8 CGPA')}
             </p>
           </div>
 
@@ -166,14 +166,14 @@ export function Hero({ onNavigate }: HeroProps) {
             <div className="flex items-center gap-2 text-[#F472B6] mb-2">
               <Cpu className="h-4 w-4" />
               <span className="font-mono text-[10px] uppercase tracking-wider text-[#A5B4FC]">
-                Core Competencies
+                {t('hero.card3.title', 'Core Competencies')}
               </span>
             </div>
             <p className="text-sm font-semibold text-white">
-              MATLAB · Simulink · C · Python
+              {t('hero.card3.val', 'MATLAB · Simulink · C · Python')}
             </p>
             <p className="text-xs text-[#CBD5E1] mt-0.5">
-              Power Systems, STATCOM, Embedded IoT
+              {t('hero.card3.sub', 'Power Systems, STATCOM, Embedded IoT')}
             </p>
           </div>
 
@@ -182,15 +182,15 @@ export function Hero({ onNavigate }: HeroProps) {
             <div className="flex items-center gap-2 text-[#FDE68A] mb-2">
               <MapPin className="h-4 w-4" />
               <span className="font-mono text-[10px] uppercase tracking-wider text-[#A5B4FC]">
-                Location & Availability
+                {t('hero.card4.title', 'Location & Availability')}
               </span>
             </div>
             <p className="text-sm font-semibold text-white">
-              Hyderabad, India
+              {t('hero.card4.val', 'Hyderabad, India')}
             </p>
             <p className="text-xs text-emerald-400 mt-0.5 flex items-center gap-1">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              Open for Internships & Projects
+              {t('hero.card4.sub', 'Open for Internships & Projects')}
             </p>
           </div>
         </div>

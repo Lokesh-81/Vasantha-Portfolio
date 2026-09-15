@@ -121,12 +121,12 @@ export function ContactSection() {
         <div className="flex flex-col justify-between gap-4 border-b border-[#1F2937] pb-8 md:flex-row md:items-end">
           <div>
             <div className="text-xs uppercase tracking-[0.25em] text-[#60A5FA] font-semibold">
-              <TextEffect key={`tag-${language}`} per="char" delay={0.05}>
+              <TextEffect key={`tag-${language}-${t('contact.tag', 'GET IN TOUCH')}`} per="word" delay={0.05}>
                 {t('contact.tag', 'GET IN TOUCH')}
               </TextEffect>
             </div>
             <h2 className="mt-1 text-3xl font-light tracking-tight text-[#E0E7FF] sm:text-5xl md:text-6xl">
-              <TextEffect key={`title-${language}`} per="word" delay={0.15}>
+              <TextEffect key={`title-${language}-${t('contact.title', "Let's")}`} per="word" delay={0.15}>
                 {t('contact.title', "Let's")}
               </TextEffect>{' '}
               <span className="instrument italic font-normal text-[#60A5FA]">
@@ -150,13 +150,13 @@ export function ContactSection() {
           <div className="lg:col-span-5 space-y-6">
             <div className="rounded-3xl border border-[#1F2937] bg-[#111827]/85 p-6 sm:p-8 backdrop-blur-xl shadow-xl">
               <span className="text-xs font-mono uppercase tracking-wider text-[#A5B4FC]">
-                Direct Verified Channels
+                {t('contact.directChannels', 'Direct Verified Channels')}
               </span>
               <h3 className="text-xl font-bold text-white mt-1">
-                Reach Out Directly
+                {t('contact.reachOut', 'Reach Out Directly')}
               </h3>
               <p className="mt-2 text-xs sm:text-sm text-[#CBD5E1]">
-                Feel free to email, call, or message me directly for inquiries, internships, or academic collaboration.
+                {t('contact.reachOutDesc', 'Feel free to email, call, or message me directly for inquiries, internships, or academic collaboration.')}
               </p>
 
               {/* Verified Email Card */}
@@ -168,7 +168,7 @@ export function ContactSection() {
                     </div>
                     <div>
                       <span className="text-[10px] font-mono uppercase text-[#64748B] block">
-                        Primary Email
+                        {t('contact.emailLabel', 'Primary Email')}
                       </span>
                       <a
                         href={`mailto:${profileData.email}`}
@@ -210,7 +210,7 @@ export function ContactSection() {
                     </div>
                     <div>
                       <span className="text-[10px] font-mono uppercase text-[#64748B] block">
-                        Phone & WhatsApp
+                        {t('contact.phoneLabel', 'Phone & WhatsApp')}
                       </span>
                       <a
                         href={profileData.telUrl}
@@ -254,7 +254,7 @@ export function ContactSection() {
                     </div>
                     <div>
                       <span className="text-[10px] font-mono uppercase text-[#64748B] block">
-                        Professional Network
+                        {t('contact.linkedinLabel', 'Professional Network')}
                       </span>
                       <a
                         href={profileData.linkedinUrl}
@@ -286,7 +286,7 @@ export function ContactSection() {
                 </div>
                 <div className="flex items-center gap-1.5 text-emerald-400 font-mono text-[11px]">
                   <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Online & Available</span>
+                  <span>{t('contact.available', 'Online & Available')}</span>
                 </div>
               </div>
             </div>
@@ -310,13 +310,13 @@ export function ContactSection() {
 
               <div className="relative z-10">
                 <span className="text-xs font-mono uppercase tracking-wider text-[#60A5FA]">
-                  Online Message
+                  {t('contact.formTag', 'Online Message')}
                 </span>
                 <h3 className="text-xl font-bold text-white mt-1">
-                  Send Direct Inquiry
+                  {t('contact.formTitle', 'Send Direct Inquiry')}
                 </h3>
                 <p className="mt-1 text-xs text-[#CBD5E1]">
-                  Fill out the form below and I will respond to your email promptly.
+                  {t('contact.formSubtitle', 'Fill out the form below and I will respond to your email promptly.')}
                 </p>
 
                 {/* Form Message States */}
@@ -338,7 +338,7 @@ export function ContactSection() {
                   <div className="mt-4 rounded-2xl border border-rose-800/60 bg-rose-950/40 p-4 text-xs text-rose-300 flex items-start gap-3">
                     <AlertCircle className="h-4 w-4 shrink-0 text-rose-400 mt-0.5" />
                     <div>
-                      <p className="font-semibold text-rose-200">Submission Alert</p>
+                      <p className="font-semibold text-rose-200">{t('contact.alertTitle', 'Submission Alert')}</p>
                       <p className="mt-0.5 text-rose-400/90">{errorMessage}</p>
                     </div>
                   </div>
@@ -349,7 +349,7 @@ export function ContactSection() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label className="block text-xs font-mono uppercase tracking-wider text-[#A5B4FC] mb-1.5">
-                        Your Name <span className="text-[#F472B6]">*</span>
+                        {t('contact.name', 'Your Name')} <span className="text-[#F472B6]">*</span>
                       </label>
                       <input
                         type="text"
@@ -366,7 +366,7 @@ export function ContactSection() {
 
                     <div>
                       <label className="block text-xs font-mono uppercase tracking-wider text-[#A5B4FC] mb-1.5">
-                        Email Address <span className="text-[#F472B6]">*</span>
+                        {t('contact.email', 'Email Address')} <span className="text-[#F472B6]">*</span>
                       </label>
                       <input
                         type="email"
@@ -385,7 +385,7 @@ export function ContactSection() {
                   {/* Discussion Topic Dropdown */}
                   <div className="relative" ref={topicRef}>
                     <label className="block text-xs font-mono uppercase tracking-wider text-[#A5B4FC] mb-1.5">
-                      Subject / Topic
+                      {t('contact.topic', 'Subject / Topic')}
                     </label>
                     <button
                       type="button"
@@ -429,7 +429,7 @@ export function ContactSection() {
                   {/* Message textarea */}
                   <div>
                     <label className="block text-xs font-mono uppercase tracking-wider text-[#A5B4FC] mb-1.5">
-                      Your Message <span className="text-[#F472B6]">*</span>
+                      {t('contact.message', 'Your Message')} <span className="text-[#F472B6]">*</span>
                     </label>
                     <textarea
                       required
@@ -453,11 +453,11 @@ export function ContactSection() {
                     className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#2563EB] py-3 text-sm font-semibold text-white shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all hover:bg-[#1D4ED8] disabled:opacity-50 cursor-pointer"
                   >
                     {status === 'submitting' ? (
-                      <span>Sending...</span>
+                      <span>{t('contact.sending', 'Sending...')}</span>
                     ) : (
                       <>
                         <Send className="h-4 w-4" />
-                        <span>Send Message</span>
+                        <span>{t('contact.send', 'Send Message')}</span>
                       </>
                     )}
                   </button>

@@ -40,12 +40,12 @@ export function ProjectsSection() {
         <div className="flex flex-col justify-between gap-4 border-b border-[#1F2937] pb-8 md:flex-row md:items-end">
           <div>
             <div className="text-xs uppercase tracking-[0.25em] text-[#60A5FA] font-semibold">
-              <TextEffect key={`tag-${language}`} per="char" delay={0.05}>
+              <TextEffect key={`tag-${language}-${t('work.tag', 'TECHNICAL PROJECTS & RESEARCH')}`} per="word" delay={0.05}>
                 {t('work.tag', 'TECHNICAL PROJECTS & RESEARCH')}
               </TextEffect>
             </div>
             <h2 className="mt-1 text-3xl font-light tracking-tight text-[#E0E7FF] sm:text-5xl md:text-6xl">
-              <TextEffect key={`title-${language}`} per="word" delay={0.15}>
+              <TextEffect key={`title-${language}-${t('work.title', 'Engineering')}`} per="word" delay={0.15}>
                 {t('work.title', 'Engineering')}
               </TextEffect>{' '}
               <span className="instrument italic font-normal text-[#60A5FA]">
@@ -66,7 +66,7 @@ export function ProjectsSection() {
         {/* Category Filters */}
         <div className="mt-8 flex flex-wrap items-center gap-2">
           <span className="text-xs font-mono uppercase tracking-wider text-[#64748B] mr-2">
-            Filter:
+            {t('work.filter', 'Filter:')}
           </span>
           {categories.map((cat) => (
             <button
@@ -78,7 +78,13 @@ export function ProjectsSection() {
                   : 'border border-[#1F2937] bg-[#111827]/70 text-[#CBD5E1] hover:border-[#60A5FA]/40 hover:text-white'
               }`}
             >
-              {cat === 'All' ? 'All Projects' : cat}
+              {cat === 'All'
+                ? t('work.filter.all', 'All Projects')
+                : cat === 'Power Systems'
+                ? t('work.filter.power', 'Power Systems')
+                : cat === 'Embedded & IoT'
+                ? t('work.filter.iot', 'Embedded & IoT')
+                : cat}
             </button>
           ))}
         </div>
@@ -98,12 +104,12 @@ export function ProjectsSection() {
                       PROJECT {project.number}
                     </span>
                     <span className="text-[11px] font-mono text-[#A5B4FC]">
-                      {project.category}
+                      {project.category === 'Power Systems' ? t('work.filter.power', 'Power Systems') : t('work.filter.iot', 'Embedded & IoT')}
                     </span>
                   </div>
                   <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2.5 py-0.5 rounded-full">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    {project.status}
+                    {project.status === 'Completed' ? t('work.status.completed', 'Completed') : project.status}
                   </span>
                 </div>
 
@@ -206,7 +212,7 @@ export function ProjectsSection() {
                 {/* Key Highlights & Implementation List */}
                 <div className="mt-6 space-y-2.5">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-[#A5B4FC]">
-                    Key Highlights & Implementation
+                    {t('work.keyContributions', 'Key Highlights & Implementation')}
                   </span>
                   <ul className="space-y-2 text-xs text-[#CBD5E1]">
                     {project.details.map((detail, idx) => (
