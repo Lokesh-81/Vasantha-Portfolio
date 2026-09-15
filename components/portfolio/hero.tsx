@@ -7,11 +7,9 @@ import {
   User,
   Zap,
   MapPin,
-  Clock,
   Cpu,
   GraduationCap,
   Award,
-  CheckCircle2,
 } from 'lucide-react';
 import { TextEffect } from '@/components/core/text-effect';
 import { TextLoop } from '@/components/core/text-loop';
@@ -28,7 +26,7 @@ export function Hero({ onNavigate }: HeroProps) {
   const { t, language } = useLanguage();
 
   return (
-    <div id="hero" className="relative min-h-[88vh] w-full px-4 sm:px-8 pt-16 sm:pt-20 pb-12 flex flex-col justify-center">
+    <div id="hero" className="relative w-full px-4 sm:px-8 pt-8 sm:pt-12 pb-12 flex flex-col justify-start">
       {/* Background Spotlight */}
       <Spotlight
         className="bg-[radial-gradient(circle_at_center,rgba(96,165,250,0.18)_0%,rgba(192,132,252,0.12)_40%,transparent_70%)] blur-2xl pointer-events-none"
@@ -37,7 +35,7 @@ export function Hero({ onNavigate }: HeroProps) {
 
       <div className="relative z-10 mx-auto max-w-[1200px] w-full flex flex-col items-start text-left">
         {/* Academic Status Badge */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-[#1F2937] bg-[#111827]/80 px-3.5 py-1.5 text-xs text-[#CBD5E1] shadow-sm backdrop-blur-md mb-5">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#1F2937] bg-[#111827]/80 px-3.5 py-1.5 text-xs text-[#CBD5E1] shadow-sm backdrop-blur-md mb-4 sm:mb-5">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -70,15 +68,15 @@ export function Hero({ onNavigate }: HeroProps) {
         </div>
 
         {/* Dynamic Text Loop for genuine interests */}
-        <div className="mt-5 flex items-center gap-2 text-base sm:text-xl text-[#CBD5E1] font-light">
+        <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2 text-base sm:text-xl text-[#CBD5E1] font-light">
           <span className="text-[#A5B4FC]/90 font-mono text-xs uppercase tracking-wider">
             Specializing in
           </span>
           <span className="text-[#334155]">/</span>
-          <div className="inline-block font-medium text-[#F472B6]">
-            <TextLoop interval={3}>
+          <div className="inline-flex items-center font-medium text-[#F472B6]">
+            <TextLoop interval={2800}>
               {profileData.interests.map((interest) => (
-                <span key={interest} className="inline-flex items-center gap-1.5">
+                <span key={interest} className="inline-flex items-center gap-1.5 font-semibold text-[#F472B6]">
                   <Zap className="h-4 w-4 text-[#FDE68A]" />
                   {interest}
                 </span>
@@ -88,12 +86,12 @@ export function Hero({ onNavigate }: HeroProps) {
         </div>
 
         {/* Hero Bio Details */}
-        <p className="mt-6 max-w-3xl text-sm sm:text-base leading-relaxed text-[#CBD5E1]">
+        <p className="mt-4 sm:mt-5 max-w-3xl text-sm sm:text-base leading-relaxed text-[#CBD5E1]">
           {profileData.heroBio}
         </p>
 
         {/* Action CTAs */}
-        <div className="mt-8 flex flex-wrap items-center gap-3.5">
+        <div className="mt-6 sm:mt-8 flex flex-wrap items-center gap-3.5">
           {/* Primary CTA with BorderTrail */}
           <div className="relative rounded-xl overflow-hidden p-[1px]">
             <BorderTrail size={80} transition={{ duration: 4, repeat: Infinity }} />
@@ -129,7 +127,7 @@ export function Hero({ onNavigate }: HeroProps) {
         </div>
 
         {/* Highlighted Engineering Details Cards */}
-        <div className="mt-12 w-full grid gap-4 sm:grid-cols-2 lg:grid-cols-4 border-t border-[#1F2937] pt-8">
+        <div className="mt-8 sm:mt-10 w-full grid gap-4 sm:grid-cols-2 lg:grid-cols-4 border-t border-[#1F2937] pt-6 sm:pt-8">
           {/* Card 1: College & Degree */}
           <div className="rounded-2xl border border-[#1F2937] bg-[#111827]/80 p-4 backdrop-blur-xl">
             <div className="flex items-center gap-2 text-[#60A5FA] mb-2">

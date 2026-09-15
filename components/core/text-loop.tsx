@@ -16,30 +16,22 @@ export interface TextLoopProps {
 
 const defaultVariants: Variants = {
   initial: {
-    y: 20,
-    rotateX: 90,
+    y: 12,
     opacity: 0,
-    filter: 'blur(4px)',
   },
   animate: {
     y: 0,
-    rotateX: 0,
     opacity: 1,
-    filter: 'blur(0px)',
   },
   exit: {
-    y: -20,
-    rotateX: -90,
+    y: -12,
     opacity: 0,
-    filter: 'blur(4px)',
   },
 };
 
 const defaultTransition: Transition = {
-  type: 'spring',
-  stiffness: 900,
-  damping: 80,
-  mass: 10,
+  duration: 0.35,
+  ease: 'easeInOut',
 };
 
 export function TextLoop({
@@ -53,6 +45,9 @@ export function TextLoop({
   const items = Children.toArray(children);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Normalize interval: if passed in seconds (e.g. 3), convert to ms (3000)
+  const normalizedInterval = interval < 100 ? interval * 1000 : interval;
+
   useEffect(() => {
     if (items.length <= 1) return;
 
@@ -62,19 +57,18 @@ export function TextLoop({
         onIndexChange?.(next);
         return next;
       });
-    }, interval);
+    }, normalizedInterval);
 
     return () => clearInterval(timer);
-  }, [items.length, interval, onIndexChange]);
+  }, [items.length, normalizedInterval, onIndexChange]);
 
   if (!items.length) return null;
 
   return (
     <span
-      className={cn('relative inline-flex overflow-hidden py-0.5', className)}
-      style={{ perspective: 1000 }}
+      className={cn('relative inline-flex items-center overflow-hidden py-0.5 min-h-[1.5em]', className)}
     >
-      <AnimatePresence mode="popLayout" initial={false}>
+      <AnimatePresence mode="wait">
         <motion.span
           key={currentIndex}
           initial="initial"
@@ -82,7 +76,7 @@ export function TextLoop({
           exit="exit"
           variants={variants}
           transition={transition}
-          className="inline-block whitespace-nowrap will-change-transform"
+          className="inline-flex items-center whitespace-nowrap will-change-transform"
         >
           {items[currentIndex]}
         </motion.span>
