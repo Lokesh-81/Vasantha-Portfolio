@@ -97,6 +97,7 @@ export async function fetchPortfolioData(): Promise<FetchedPortfolioData> {
           aboutBio: rawProfile.about_bio || fallbackProfile.aboutBio,
           aboutSubDescription: rawProfile.about_sub_description || fallbackProfile.aboutSubDescription,
           interests: rawProfile.interests?.length ? rawProfile.interests : fallbackProfile.interests,
+          profileImageUrl: rawProfile.profile_image_url || null,
         }
       : fallbackProfile;
 
@@ -198,8 +199,16 @@ export async function fetchPortfolioData(): Promise<FetchedPortfolioData> {
     let resumeUrl: string | null = null;
     if (settingsData) {
       const resumeSetting = settingsData.find((s) => s.key === 'resume_url');
-      if (resumeSetting && typeof resumeSetting.value === 'string' && resumeSetting.value.trim().length > 0) {
-        resumeUrl = resumeSetting.value;
+      if (resumeSetting && resumeSetting.value) {
+        if (typeof resumeSetting.value === 'string') {
+          const val = resumeSetting.value.trim();
+          if (val.length > 0 && val !== 'null' && val !== '""') {
+            resumeUrl = val.replace(/^["']|["']$/g, '');
+          }
+        } else if (typeof resumeSetting.value === 'object') {
+          const obj = resumeSetting.value as any;
+          resumeUrl = obj.url || obj.publicUrl || null;
+        }
       }
     }
 

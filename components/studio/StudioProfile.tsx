@@ -25,6 +25,8 @@ export function StudioProfile() {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [imageUrlInput, setImageUrlInput] = useState(profile.profileImageUrl || '');
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -32,6 +34,27 @@ export function StudioProfile() {
     setError(null);
 
     try {
+      // Sync with localStorage cache immediately
+      const cached = localStorage.getItem('vasantha_profile_override');
+      const parsed = cached ? JSON.parse(cached) : {};
+      const updatedCache = {
+        ...parsed,
+        name: formData.name,
+        title: formData.title,
+        college: formData.college,
+        degree: formData.degree,
+        cgpa: formData.cgpa,
+        location: formData.location,
+        email: formData.email,
+        phone: formData.phone,
+        linkedinUrl: formData.linkedin_url,
+        githubUrl: formData.github_url,
+        heroBio: formData.hero_bio,
+        aboutBio: formData.about_bio,
+        aboutSubDescription: formData.about_sub_description,
+      };
+      localStorage.setItem('vasantha_profile_override', JSON.stringify(updatedCache));
+
       const res = await updateProfile(formData);
       if (res.error) throw new Error(res.error.message || 'Failed to update profile');
       await refreshData();
@@ -51,23 +74,62 @@ export function StudioProfile() {
     setUploadingImage(true);
     setError(null);
 
+    const readFileAsDataUrl = (f: File): Promise<string> =>
+      new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => resolve('');
+        reader.readAsDataURL(f);
+      });
+
     try {
+      const dataUrl = await readFileAsDataUrl(file);
       const fileExt = file.name.split('.').pop() || 'jpg';
       const fileName = `profile/vasantha_avatar_${Date.now()}.${fileExt}`;
       const res = await uploadStorageFile('portfolio-media', fileName, file);
 
-      if (res.error) throw res.error;
-      if (res.data?.publicUrl) {
-        await updateProfile({ profile_image_url: res.data.publicUrl });
-        await refreshData();
-        setSuccess('Profile photograph uploaded to Supabase Storage!');
-        setTimeout(() => setSuccess(null), 4000);
+      let finalUrl = res.data?.publicUrl;
+      if (res.error || !finalUrl) {
+        if (dataUrl) {
+          finalUrl = dataUrl;
+        } else {
+          throw res.error || new Error('Upload failed');
+        }
       }
+
+      // Save to localStorage override
+      const cached = localStorage.getItem('vasantha_profile_override');
+      const parsed = cached ? JSON.parse(cached) : {};
+      parsed.profileImageUrl = finalUrl;
+      localStorage.setItem('vasantha_profile_override', JSON.stringify(parsed));
+
+      setImageUrlInput(finalUrl.startsWith('data:') ? finalUrl.slice(0, 40) + '... (Data URI)' : finalUrl);
+      try {
+        await updateProfile({ profile_image_url: finalUrl });
+      } catch (_) {}
+      await refreshData();
+      setSuccess('Profile photograph uploaded and activated!');
+      setTimeout(() => setSuccess(null), 4000);
     } catch (err: any) {
       setError(err?.message || 'Failed to upload profile photo to storage');
     } finally {
       setUploadingImage(false);
     }
+  };
+
+  const handleSaveImageUrl = async () => {
+    const targetUrl = imageUrlInput.trim();
+    const cached = localStorage.getItem('vasantha_profile_override');
+    const parsed = cached ? JSON.parse(cached) : {};
+    parsed.profileImageUrl = targetUrl;
+    localStorage.setItem('vasantha_profile_override', JSON.stringify(parsed));
+
+    try {
+      await updateProfile({ profile_image_url: targetUrl });
+    } catch (_) {}
+    await refreshData();
+    setSuccess(targetUrl ? 'Profile photo URL updated!' : 'Profile photo removed.');
+    setTimeout(() => setSuccess(null), 4000);
   };
 
   return (
@@ -103,25 +165,72 @@ export function StudioProfile() {
             Until Vasantha provides her actual photograph, the public site displays a neutral technical avatar badge. You can upload an official photograph below to store in <code className="text-blue-400 font-mono">portfolio-media/profile/</code>.
           </p>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-[#1F2937] bg-[#0B132B] text-white font-mono text-xl font-bold">
-              VP
-            </div>
-
-            <div>
-              <label className="inline-flex items-center gap-2 rounded-xl bg-[#1F2937] hover:bg-[#374151] px-4 py-2 text-xs font-semibold text-white cursor-pointer transition-colors">
-                <Upload className="h-3.5 w-3.5" />
-                <span>{uploadingImage ? 'Uploading to Supabase...' : 'Upload Actual Photograph'}</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploadingImage}
-                  className="hidden"
+          <div className="flex flex-wrap items-center gap-5">
+            {profile.profileImageUrl ? (
+              <div className="relative h-20 w-20 shrink-0 rounded-2xl overflow-hidden border-2 border-[#60A5FA] shadow-lg shadow-blue-500/20">
+                <img
+                  src={profile.profileImageUrl}
+                  alt={profile.name}
+                  className="h-full w-full object-cover"
                 />
-              </label>
-              <p className="text-[11px] text-[#64748B] mt-1">
-                Accepted: JPG, PNG, WebP (Max 5MB)
+              </div>
+            ) : (
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-[#1F2937] bg-[#0B132B] text-white font-mono text-xl font-bold">
+                VP
+              </div>
+            )}
+
+            <div className="space-y-3 flex-1 min-w-[240px]">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <label className="inline-flex items-center gap-2 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] px-4 py-2 text-xs font-semibold text-white cursor-pointer transition-colors shadow-md shadow-blue-600/20">
+                  <Upload className="h-3.5 w-3.5" />
+                  <span>{uploadingImage ? 'Uploading photograph...' : 'Upload New Photograph'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImage}
+                    className="hidden"
+                  />
+                </label>
+
+                {profile.profileImageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageUrlInput('');
+                      const cached = localStorage.getItem('vasantha_profile_override');
+                      const parsed = cached ? JSON.parse(cached) : {};
+                      delete parsed.profileImageUrl;
+                      localStorage.setItem('vasantha_profile_override', JSON.stringify(parsed));
+                      updateProfile({ profile_image_url: '' }).catch(() => {});
+                      refreshData();
+                    }}
+                    className="rounded-xl border border-rose-800/60 bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-900/40 transition-colors cursor-pointer"
+                  >
+                    Remove Photo
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Or enter direct image URL (e.g. https://...)"
+                  value={imageUrlInput}
+                  onChange={(e) => setImageUrlInput(e.target.value)}
+                  className="flex-1 rounded-xl border border-[#1F2937] bg-[#0B132B] px-3 py-1.5 text-xs text-white placeholder-[#64748B] focus:border-[#60A5FA] focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveImageUrl}
+                  className="rounded-xl border border-[#1F2937] bg-[#1F2937] hover:bg-[#374151] px-3 py-1.5 text-xs font-semibold text-white transition-colors cursor-pointer"
+                >
+                  Save URL
+                </button>
+              </div>
+              <p className="text-[11px] text-[#64748B]">
+                Accepted: JPG, PNG, WebP (Max 5MB) or direct hosted image link.
               </p>
             </div>
           </div>

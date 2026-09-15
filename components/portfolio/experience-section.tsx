@@ -22,10 +22,23 @@ import {
   certificationsList,
   achievementsList,
 } from '@/lib/data/portfolio-data';
+import { usePortfolio } from '@/lib/portfolio-context';
 
 export function ExperienceSection() {
   const { t, language } = useLanguage();
+  const {
+    experiences: contextExperiences,
+    education: contextEducation,
+    certifications: contextCertifications,
+    achievements: contextAchievements,
+  } = usePortfolio();
+
   const [activeTab, setActiveTab] = useState<'experience' | 'education' | 'certifications' | 'achievements'>('experience');
+
+  const activeExperiences = contextExperiences && contextExperiences.length > 0 ? contextExperiences : experienceList;
+  const activeEducation = contextEducation && contextEducation.length > 0 ? contextEducation : educationList;
+  const activeCertifications = contextCertifications && contextCertifications.length > 0 ? contextCertifications : certificationsList;
+  const activeAchievements = contextAchievements && contextAchievements.length > 0 ? contextAchievements : achievementsList;
 
   return (
     <section id="experience" className="relative w-full px-4 sm:px-8 py-16 sm:py-24 border-t border-[#1F2937]/80">
@@ -129,7 +142,7 @@ export function ExperienceSection() {
                 transition={{ duration: 0.2 }}
                 className="space-y-6"
               >
-                {experienceList.map((exp) => (
+                {activeExperiences.map((exp) => (
                   <div
                     key={exp.id}
                     className="relative rounded-3xl border border-[#1F2937] bg-[#111827]/85 p-6 sm:p-8 shadow-xl backdrop-blur-xl"
@@ -197,7 +210,7 @@ export function ExperienceSection() {
                 transition={{ duration: 0.2 }}
                 className="space-y-6"
               >
-                {educationList.map((edu) => (
+                {activeEducation.map((edu) => (
                   <div
                     key={edu.id}
                     className="relative rounded-3xl border border-[#1F2937] bg-[#111827]/85 p-6 sm:p-8 shadow-xl backdrop-blur-xl"
@@ -255,7 +268,7 @@ export function ExperienceSection() {
                 transition={{ duration: 0.2 }}
                 className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
               >
-                {certificationsList.map((cert) => (
+                {activeCertifications.map((cert) => (
                   <div
                     key={cert.id}
                     className="group rounded-2xl border border-[#1F2937] bg-[#111827]/85 p-5 shadow-lg backdrop-blur-xl transition-all hover:border-[#60A5FA]/60 hover:bg-[#111827]"
@@ -289,7 +302,7 @@ export function ExperienceSection() {
                 transition={{ duration: 0.2 }}
                 className="grid gap-4 sm:grid-cols-2"
               >
-                {achievementsList.map((ach) => (
+                {activeAchievements.map((ach) => (
                   <div
                     key={ach.id}
                     className="group rounded-2xl border border-[#1F2937] bg-[#111827]/85 p-6 shadow-lg backdrop-blur-xl transition-all hover:border-[#FDE68A]/60"

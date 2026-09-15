@@ -23,12 +23,16 @@ import {
   marqueeTechnologies,
   SkillItem,
 } from '@/lib/data/portfolio-data';
+import { usePortfolio } from '@/lib/portfolio-context';
 
 export function SkillsSection() {
   const { t, language } = useLanguage();
+  const { skills } = usePortfolio();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  const filteredSkills = skillsList.filter((skill) => {
+  const activeSkills = skills && skills.length > 0 ? skills : skillsList;
+
+  const filteredSkills = activeSkills.filter((skill) => {
     if (selectedCategory === 'All') return true;
     return skill.category === selectedCategory;
   });

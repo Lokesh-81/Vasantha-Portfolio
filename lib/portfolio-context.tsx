@@ -46,14 +46,62 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const [certifications, setCertifications] = useState<CertificationItem[]>(initialCertifications);
   const [achievements, setAchievements] = useState<AchievementItem[]>(initialAchievements);
   const [languages, setLanguages] = useState<LanguageSkill[]>(initialLanguages);
-  const [resumeUrl, setResumeUrl] = useState<string | null>(null);
+  const [resumeUrl, setResumeUrl] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('vasantha_resume_url') || null;
+    }
+    return null;
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [fromDatabase, setFromDatabase] = useState<boolean>(false);
+
+  // Initialize cached overrides from localStorage on client mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const cachedResume = localStorage.getItem('vasantha_resume_url');
+      if (cachedResume && !resumeUrl) {
+        setResumeUrl(cachedResume);
+      }
+      try {
+        const cachedProfile = localStorage.getItem('vasantha_profile_override');
+        if (cachedProfile) {
+          const parsed = JSON.parse(cachedProfile);
+          setProfile((prev) => ({ ...prev, ...parsed }));
+        }
+      } catch (e) {
+        // ignore JSON parse error
+      }
+    }
+  }, []);
 
   const refreshData = useCallback(async () => {
     try {
       const data = await fetchPortfolioData();
-      setProfile(data.profile);
+      
+      // Merge with any local overrides for photo or resume
+      let effectiveProfile = data.profile;
+      let effectiveResumeUrl = data.resumeUrl;
+
+      if (typeof window !== 'undefined') {
+        const localResume = localStorage.getItem('vasantha_resume_url');
+        if (!effectiveResumeUrl && localResume) {
+          effectiveResumeUrl = localResume;
+        } else if (effectiveResumeUrl) {
+          localStorage.setItem('vasantha_resume_url', effectiveResumeUrl);
+        }
+
+        const localProfile = localStorage.getItem('vasantha_profile_override');
+        if (localProfile) {
+          try {
+            const parsed = JSON.parse(localProfile);
+            effectiveProfile = { ...effectiveProfile, ...parsed };
+          } catch (e) {
+            // ignore
+          }
+        }
+      }
+
+      setProfile(effectiveProfile);
       setEducation(data.education);
       setExperiences(data.experiences);
       setProjects(data.projects);
@@ -61,7 +109,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
       setCertifications(data.certifications);
       setAchievements(data.achievements);
       setLanguages(data.languages);
-      setResumeUrl(data.resumeUrl);
+      setResumeUrl(effectiveResumeUrl);
       setFromDatabase(data.fromDatabase);
     } catch (error) {
       console.warn('Error loading portfolio context:', error);

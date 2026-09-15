@@ -65,7 +65,28 @@ export interface LanguageSkill {
   levelPercentage: number;
 }
 
-export const profileData = {
+export interface ProfileData {
+  name: string;
+  initials: string;
+  title: string;
+  degree: string;
+  college: string;
+  location: string;
+  email: string;
+  phone: string;
+  phoneClean: string;
+  whatsappUrl: string;
+  telUrl: string;
+  linkedinUrl: string;
+  locationDisplay: string;
+  heroBio: string;
+  aboutBio: string;
+  aboutSubDescription: string;
+  interests: string[];
+  profileImageUrl?: string | null;
+}
+
+export const profileData: ProfileData = {
   name: "Vasantha Perala",
   initials: "VP",
   title: "Electrical & Electronics Engineering Student",
@@ -87,7 +108,8 @@ export const profileData = {
     "Renewable Energy",
     "Electrical Engineering",
     "Technology"
-  ]
+  ],
+  profileImageUrl: null
 };
 
 export const educationList: EducationItem[] = [

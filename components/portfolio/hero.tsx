@@ -26,8 +26,13 @@ export interface HeroProps {
 
 export function Hero({ onNavigate }: HeroProps) {
   const { t, language } = useLanguage();
-  const { resumeUrl } = usePortfolio();
+  const { profile, resumeUrl } = usePortfolio();
   const [resumeNotice, setResumeNotice] = useState(false);
+
+  // Split name for display
+  const nameParts = profile.name ? profile.name.split(' ') : ['Vasantha', 'Perala'];
+  const firstName = nameParts[0] || 'Vasantha';
+  const lastName = nameParts.slice(1).join(' ') || 'Perala';
 
   return (
     <div id="hero" className="relative w-full px-4 sm:px-8 pt-8 sm:pt-12 pb-12 flex flex-col justify-start">
@@ -38,22 +43,35 @@ export function Hero({ onNavigate }: HeroProps) {
       />
 
       <div className="relative z-10 mx-auto max-w-[1200px] w-full flex flex-col items-start text-left">
-        {/* Academic Status Badge */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-[#1F2937] bg-[#111827]/80 px-3.5 py-1.5 text-xs text-[#CBD5E1] shadow-sm backdrop-blur-md mb-4 sm:mb-5">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-          </span>
-          <span className="font-mono text-[11px] uppercase tracking-wider text-[#A5B4FC]">
-            {t('hero.statusBadge', 'B.Tech · EEE (2023–2027) · Hyderabad, India')}
-          </span>
+        {/* Top bar with Academic Status Badge and Profile Photo Thumbnail */}
+        <div className="flex items-center gap-3 mb-4 sm:mb-5">
+          {profile.profileImageUrl && (
+            <div className="relative h-11 w-11 shrink-0 rounded-full p-0.5 ring-2 ring-[#60A5FA]/60 bg-gradient-to-tr from-blue-600 to-pink-500 shadow-lg shadow-blue-500/20">
+              <img
+                src={profile.profileImageUrl}
+                alt={profile.name}
+                className="h-full w-full rounded-full object-cover"
+              />
+              <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-[#0B132B]" />
+            </div>
+          )}
+
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#1F2937] bg-[#111827]/80 px-3.5 py-1.5 text-xs text-[#CBD5E1] shadow-sm backdrop-blur-md">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <span className="font-mono text-[11px] uppercase tracking-wider text-[#A5B4FC]">
+              {t('hero.statusBadge', `${profile.degree || 'B.Tech · EEE'} · ${profile.location || 'Hyderabad, India'}`)}
+            </span>
+          </div>
         </div>
 
         {/* Heading with TextEffect */}
         <div className="mt-1 max-w-4xl">
           <div className="text-xs sm:text-sm uppercase tracking-[0.25em] text-[#60A5FA] font-semibold mb-2">
-            <TextEffect key={`tag-${language}-${t('hero.roleTag', 'Electrical & Electronics Engineering')}`} per="word" delay={0.05}>
-              {t('hero.roleTag', 'Electrical & Electronics Engineering')}
+            <TextEffect key={`tag-${language}-${profile.title}`} per="word" delay={0.05}>
+              {profile.title}
             </TextEffect>
           </div>
 
@@ -63,10 +81,10 @@ export function Hero({ onNavigate }: HeroProps) {
             </span>
             <br className="hidden sm:inline" />
             <span className="font-normal text-white">
-              Vasantha{' '}
+              {firstName}{' '}
             </span>
             <span className="instrument italic font-normal text-[#60A5FA]">
-              Perala.
+              {lastName}.
             </span>
           </h1>
         </div>
@@ -79,7 +97,7 @@ export function Hero({ onNavigate }: HeroProps) {
           <span className="text-[#334155]">/</span>
           <div className="inline-flex items-center font-medium text-[#F472B6]">
             <TextLoop interval={2800}>
-              {profileData.interests.map((interest) => (
+              {(profile.interests && profile.interests.length > 0 ? profile.interests : profileData.interests).map((interest) => (
                 <span key={interest} className="inline-flex items-center gap-1.5 font-semibold text-[#F472B6]">
                   <Zap className="h-4 w-4 text-[#FDE68A]" />
                   {interest}
@@ -91,7 +109,7 @@ export function Hero({ onNavigate }: HeroProps) {
 
         {/* Hero Bio Details - 2 lines on desktop */}
         <p className="mt-4 sm:mt-5 max-w-2xl text-sm sm:text-base leading-relaxed text-[#CBD5E1]">
-          {t('hero.bio', profileData.heroBio)}
+          {profile.heroBio || profileData.heroBio}
         </p>
 
         {/* Action CTAs */}

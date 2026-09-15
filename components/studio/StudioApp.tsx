@@ -159,9 +159,9 @@ export function StudioApp({ onExit }: StudioAppProps) {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-[#0B132B] text-[#E0E7FF] font-sans flex flex-col md:flex-row">
+    <div className="h-screen max-h-screen w-full bg-[#0B132B] text-[#E0E7FF] font-sans flex flex-col md:flex-row overflow-hidden">
       {/* Mobile Header Bar */}
-      <div className="md:hidden flex items-center justify-between border-b border-[#1F2937] bg-[#111827] px-4 py-3 sticky top-0 z-50">
+      <div className="md:hidden flex items-center justify-between border-b border-[#1F2937] bg-[#111827] px-4 py-3 sticky top-0 z-50 shrink-0">
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -187,7 +187,7 @@ export function StudioApp({ onExit }: StudioAppProps) {
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-64 border-r border-[#1F2937] bg-[#111827] p-4 flex flex-col justify-between transition-transform md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:static md:w-64 shrink-0 overflow-y-auto`}
+        } md:static md:w-64 shrink-0 md:h-screen overflow-y-auto custom-scrollbar`}
       >
         <div>
           {/* Brand header */}
@@ -268,7 +268,7 @@ export function StudioApp({ onExit }: StudioAppProps) {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 min-w-0 p-4 sm:p-8 lg:p-10 overflow-y-auto">
+      <main className="flex-1 min-w-0 h-[calc(100vh-53px)] md:h-screen p-4 sm:p-8 lg:p-10 pb-32 md:pb-28 overflow-y-auto custom-scrollbar scroll-smooth">
         {activeTab === 'dashboard' && (
           <StudioDashboard
             onNavigateTab={(tab) => setActiveTab(tab as StudioTab)}

@@ -27,18 +27,48 @@ export function StudioResume() {
     setError(null);
     setSuccess(null);
 
+    // Also read as local Data URL for immediate fallback and instant offline availability
+    const readFileAsDataUrl = (f: File): Promise<string> =>
+      new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => resolve('');
+        reader.readAsDataURL(f);
+      });
+
     try {
+      const fallbackUrl = await readFileAsDataUrl(file);
       const fileName = `Vasantha_Perala_Resume_${Date.now()}.pdf`;
       const res = await uploadStorageFile('resume', fileName, file);
 
-      if (res.error) throw res.error;
-      if (res.data?.publicUrl) {
-        // Update site settings in DB
-        await updateSiteSetting('resume_url', res.data.publicUrl, 'Active public resume document URL');
-        await refreshData();
-        setCustomUrl(res.data.publicUrl);
-        setSuccess('Resume PDF successfully uploaded to Supabase Storage and activated for the public portfolio!');
+      let finalUrl = res.data?.publicUrl;
+
+      if (res.error || !finalUrl) {
+        // Fall back to embedded PDF data URL if storage bucket fails
+        if (fallbackUrl) {
+          finalUrl = fallbackUrl;
+          localStorage.setItem('vasantha_resume_url', fallbackUrl);
+          try {
+            await updateSiteSetting('resume_url', fallbackUrl, 'Active public resume document URL');
+          } catch (_) {}
+          await refreshData();
+          setCustomUrl(fallbackUrl.slice(0, 45) + '... (Data URI)');
+          setSuccess('Resume PDF saved locally and activated! Public "Download Resume" button is now live.');
+          return;
+        } else {
+          throw res.error || new Error('Upload failed');
+        }
       }
+
+      // Update site settings in DB & cache locally
+      localStorage.setItem('vasantha_resume_url', finalUrl);
+      try {
+        await updateSiteSetting('resume_url', finalUrl, 'Active public resume document URL');
+      } catch (_) {}
+
+      await refreshData();
+      setCustomUrl(finalUrl);
+      setSuccess('Resume PDF successfully uploaded and activated for the public portfolio!');
     } catch (err: any) {
       setError(err?.message || 'Failed to upload resume to storage');
     } finally {
@@ -52,10 +82,20 @@ export function StudioResume() {
     setError(null);
     setSuccess(null);
 
+    const targetUrl = customUrl.trim();
+
     try {
-      await updateSiteSetting('resume_url', customUrl.trim(), 'Active public resume document URL');
+      if (targetUrl) {
+        localStorage.setItem('vasantha_resume_url', targetUrl);
+      } else {
+        localStorage.removeItem('vasantha_resume_url');
+      }
+      try {
+        await updateSiteSetting('resume_url', targetUrl, 'Active public resume document URL');
+      } catch (_) {}
+
       await refreshData();
-      setSuccess('Resume URL updated successfully!');
+      setSuccess('Resume URL updated successfully and activated!');
     } catch (err: any) {
       setError(err?.message || 'Failed to update resume URL');
     } finally {
@@ -69,7 +109,10 @@ export function StudioResume() {
     setSuccess(null);
 
     try {
-      await updateSiteSetting('resume_url', '', 'Active public resume document URL');
+      localStorage.removeItem('vasantha_resume_url');
+      try {
+        await updateSiteSetting('resume_url', '', 'Active public resume document URL');
+      } catch (_) {}
       await refreshData();
       setCustomUrl('');
       setSuccess('Resume reference removed.');

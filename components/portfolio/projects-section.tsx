@@ -16,14 +16,20 @@ import { TextEffect } from '@/components/core/text-effect';
 import { Spotlight } from '@/components/core/spotlight';
 import { useLanguage } from '@/src/i18n';
 import { projectsList, ProjectItem } from '@/lib/data/portfolio-data';
+import { usePortfolio } from '@/lib/portfolio-context';
 
 export function ProjectsSection() {
   const { t, language } = useLanguage();
+  const { projects } = usePortfolio();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  const categories = ['All', 'Power Systems & Grid Stability', 'Embedded Systems & IoT'];
+  const activeProjects = projects && projects.length > 0 ? projects : projectsList;
 
-  const filteredProjects = projectsList.filter((project) => {
+  // Derive unique categories from active projects
+  const uniqueCategories = Array.from(new Set(activeProjects.map((p) => p.category).filter(Boolean)));
+  const categories = ['All', ...uniqueCategories];
+
+  const filteredProjects = activeProjects.filter((project) => {
     if (selectedCategory === 'All') return true;
     return project.category === selectedCategory;
   });

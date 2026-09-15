@@ -15,9 +15,11 @@ import { TextEffect } from '@/components/core/text-effect';
 import { Spotlight } from '@/components/core/spotlight';
 import { useLanguage } from '@/src/i18n';
 import { profileData } from '@/lib/data/portfolio-data';
+import { usePortfolio } from '@/lib/portfolio-context';
 
 export function AboutSection() {
   const { t, language } = useLanguage();
+  const { profile, languages: contextLanguages } = usePortfolio();
 
   const philosophies = [
     {
@@ -88,7 +90,7 @@ export function AboutSection() {
           </div>
           <div className="max-w-md text-xs sm:text-sm leading-relaxed text-[#CBD5E1]">
             <p>
-              {t('about.subtitle', profileData.aboutBio)}
+              {t('about.subtitle', profile.aboutBio || profileData.aboutBio)}
             </p>
           </div>
         </div>
@@ -98,6 +100,23 @@ export function AboutSection() {
           {/* Left Column: Academic & Technical Background Details */}
           <div className="lg:col-span-7 space-y-6">
             <div className="rounded-2xl border border-[#1F2937] bg-[#111827]/80 p-6 sm:p-8 backdrop-blur-xl">
+              {profile.profileImageUrl && (
+                <div className="flex items-center gap-4 pb-5 border-b border-[#1F2937] mb-5">
+                  <div className="relative h-16 w-16 shrink-0 rounded-2xl p-0.5 ring-2 ring-[#60A5FA]/60 bg-gradient-to-tr from-blue-600 to-pink-500 shadow-lg shadow-blue-500/20 overflow-hidden">
+                    <img
+                      src={profile.profileImageUrl}
+                      alt={profile.name}
+                      className="h-full w-full rounded-2xl object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-semibold text-white">{profile.name}</h4>
+                    <p className="text-xs text-[#94A3B8] font-mono mt-0.5">{profile.title}</p>
+                    <p className="text-[11px] text-[#60A5FA] mt-1">{profile.degree || profile.college}</p>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center gap-2.5 pb-4 border-b border-[#1F2937] text-white">
                 <Layers className="h-5 w-5 text-[#60A5FA]" />
                 <h3 className="text-lg font-semibold tracking-tight">
@@ -105,7 +124,7 @@ export function AboutSection() {
                 </h3>
               </div>
               <p className="mt-4 text-sm sm:text-base leading-relaxed text-[#CBD5E1]">
-                {t('about.subDescription', profileData.aboutSubDescription)}
+                {t('about.subDescription', profile.aboutSubDescription || profileData.aboutSubDescription)}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-[#CBD5E1]/80">
                 {t('about.subDescription2', 'During my academic journey at Malla Reddy Engineering College for Women, I have developed technical rigor in circuit analysis, dynamic power flow simulation, and embedded system design. My goal is to bridge classical electrical engineering fundamentals with modern computational software.')}
@@ -119,7 +138,7 @@ export function AboutSection() {
                   </span>
                   <p className="font-semibold text-xs text-[#E0E7FF] flex items-center gap-1">
                     <MapPin className="h-3 w-3 text-[#60A5FA]" />
-                    {t('about.locationVal', profileData.location)}
+                    {t('about.locationVal', profile.location || profileData.location)}
                   </p>
                 </div>
                 <div className="space-y-1">

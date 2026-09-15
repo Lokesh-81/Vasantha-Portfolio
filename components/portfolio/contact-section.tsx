@@ -22,9 +22,11 @@ import { Spotlight } from '@/components/core/spotlight';
 import { useLanguage } from '@/src/i18n';
 import { profileData } from '@/lib/data/portfolio-data';
 import { submitContactMessage } from '@/lib/supabase/api';
+import { usePortfolio } from '@/lib/portfolio-context';
 
 export function ContactSection() {
   const { t, language } = useLanguage();
+  const { profile } = usePortfolio();
 
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -187,27 +189,27 @@ export function ContactSection() {
                         {t('contact.emailLabel', 'Primary Email')}
                       </span>
                       <a
-                        href={`mailto:${profileData.email}`}
+                        href={`mailto:${profile.email || profileData.email}`}
                         className="text-xs sm:text-sm font-semibold text-white hover:text-[#60A5FA] transition-colors"
                       >
-                        {profileData.email}
+                        {profile.email || profileData.email}
                       </a>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <button
-                      onClick={() => copyToClipboard(profileData.email)}
+                      onClick={() => copyToClipboard(profile.email || profileData.email)}
                       className="rounded-lg border border-[#1F2937] bg-[#111827] p-2 text-[#CBD5E1] hover:border-[#60A5FA]/60 hover:text-white transition-colors cursor-pointer"
                       title="Copy Email"
                     >
-                      {copiedText === profileData.email ? (
+                      {copiedText === (profile.email || profileData.email) ? (
                         <Check className="h-3.5 w-3.5 text-emerald-400" />
                       ) : (
                         <Copy className="h-3.5 w-3.5" />
                       )}
                     </button>
                     <a
-                      href={`mailto:${profileData.email}`}
+                      href={`mailto:${profile.email || profileData.email}`}
                       className="rounded-lg bg-[#2563EB] p-2 text-white hover:bg-[#1D4ED8] transition-colors"
                       title="Open Mail Client"
                     >
@@ -229,27 +231,27 @@ export function ContactSection() {
                         {t('contact.phoneLabel', 'Phone & WhatsApp')}
                       </span>
                       <a
-                        href={profileData.telUrl}
+                        href={profile.telUrl || profileData.telUrl}
                         className="text-xs sm:text-sm font-semibold text-white hover:text-emerald-400 transition-colors font-mono"
                       >
-                        {profileData.phone}
+                        {profile.phone || profileData.phone}
                       </a>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <button
-                      onClick={() => copyToClipboard(profileData.phone)}
+                      onClick={() => copyToClipboard(profile.phone || profileData.phone)}
                       className="rounded-lg border border-[#1F2937] bg-[#111827] p-2 text-[#CBD5E1] hover:border-emerald-500/60 hover:text-white transition-colors cursor-pointer"
                       title="Copy Phone"
                     >
-                      {copiedText === profileData.phone ? (
+                      {copiedText === (profile.phone || profileData.phone) ? (
                         <Check className="h-3.5 w-3.5 text-emerald-400" />
                       ) : (
                         <Copy className="h-3.5 w-3.5" />
                       )}
                     </button>
                     <a
-                      href={profileData.whatsappUrl}
+                      href={profile.whatsappUrl || profileData.whatsappUrl}
                       target="_blank"
                       rel="noreferrer"
                       className="rounded-lg bg-emerald-600 p-2 text-white hover:bg-emerald-500 transition-colors"
@@ -273,7 +275,7 @@ export function ContactSection() {
                         {t('contact.linkedinLabel', 'Professional Network')}
                       </span>
                       <a
-                        href={profileData.linkedinUrl}
+                        href={profile.linkedinUrl || profileData.linkedinUrl}
                         target="_blank"
                         rel="noreferrer"
                         className="text-xs sm:text-sm font-semibold text-white hover:text-[#38BDF8] transition-colors"
@@ -283,7 +285,7 @@ export function ContactSection() {
                     </div>
                   </div>
                   <a
-                    href={profileData.linkedinUrl}
+                    href={profile.linkedinUrl || profileData.linkedinUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="rounded-lg bg-[#0A66C2] p-2 text-white hover:bg-[#084e96] transition-colors"
@@ -298,7 +300,7 @@ export function ContactSection() {
               <div className="mt-6 flex items-center justify-between rounded-xl border border-[#1F2937] bg-[#111827] px-4 py-3 text-xs text-[#CBD5E1]">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-[#60A5FA]" />
-                  <span>{profileData.locationDisplay}</span>
+                  <span>{profile.locationDisplay || profileData.locationDisplay}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-emerald-400 font-mono text-[11px]">
                   <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
