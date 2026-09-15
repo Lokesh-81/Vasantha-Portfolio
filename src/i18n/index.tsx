@@ -1,0 +1,92 @@
+'use client';
+
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { en } from './en';
+import { te, hi, fr } from './translations';
+import { Language, LanguageOption, SUPPORTED_LANGUAGES, TranslationDictionary } from './types';
+
+export * from './types';
+
+interface LanguageContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string, fallback?: string) => string;
+  supportedLanguages: LanguageOption[];
+}
+
+const dictionaries: Record<string, TranslationDictionary> = {
+  en,
+  te,
+  hi,
+  fr,
+};
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const STORAGE_KEY = 'vasantha_portfolio_language';
+
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguageState] = useState<Language>('en');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY) as Language | null;
+      if (saved && dictionaries[saved]) {
+        setLanguageState(saved);
+        if (typeof document !== 'undefined') {
+          document.documentElement.lang = saved;
+        }
+      }
+    } catch {
+      // Ignore storage errors in iframe
+    }
+  }, []);
+
+  const setLanguage = useCallback((lang: Language) => {
+    setLanguageState(lang);
+    try {
+      localStorage.setItem(STORAGE_KEY, lang);
+    } catch {
+      // Ignore storage errors in iframe
+    }
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = lang;
+    }
+  }, []);
+
+  const t = useCallback(
+    (key: string, fallback?: string): string => {
+      const currentDict = dictionaries[language];
+      if (currentDict && currentDict[key] !== undefined) {
+        return currentDict[key];
+      }
+      // Fallback to English
+      const enDict = dictionaries.en;
+      if (enDict && enDict[key] !== undefined) {
+        return enDict[key];
+      }
+      return fallback || key;
+    },
+    [language]
+  );
+
+  return (
+    <LanguageContext.Provider
+      value={{
+        language,
+        setLanguage,
+        t,
+        supportedLanguages: SUPPORTED_LANGUAGES,
+      }}
+    >
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+export function useLanguage(): LanguageContextType {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+}
