@@ -1,54 +1,69 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// Detect environment variables from Vite or Next.js conventions
-function getEnv(key: string): string {
-  const metaEnv = typeof import.meta !== 'undefined' ? (import.meta as any).env : undefined;
-  if (metaEnv) {
-    if (metaEnv[key]) return metaEnv[key];
-    if (metaEnv[`VITE_${key}`]) return metaEnv[`VITE_${key}`];
-    if (metaEnv[`NEXT_PUBLIC_${key}`]) return metaEnv[`NEXT_PUBLIC_${key}`];
-  }
-  if (typeof process !== 'undefined' && process.env) {
-    if (process.env[key]) return process.env[key] || '';
-    if (process.env[`VITE_${key}`]) return process.env[`VITE_${key}`] || '';
-    if (process.env[`NEXT_PUBLIC_${key}`]) return process.env[`NEXT_PUBLIC_${key}`] || '';
-  }
-  return '';
-}
-
-// Runtime credentials storage key for browser session if user enters them via Studio UI
+// Runtime credentials storage key for browser session / persistent admin config
 const STORAGE_URL_KEY = 'vasantha_portfolio_supabase_url';
 const STORAGE_KEY_KEY = 'vasantha_portfolio_supabase_anon_key';
 
+function sanitizeUrl(rawUrl?: string | null): string {
+  if (!rawUrl) return '';
+  let cleaned = rawUrl.trim().replace(/^['"]|['"]$/g, '');
+  if (!cleaned) return '';
+  // Fix protocol if user pasted project domain without https://
+  if (!/^https?:\/\//i.test(cleaned)) {
+    cleaned = `https://${cleaned}`;
+  }
+  // Remove trailing slashes
+  return cleaned.replace(/\/+$/, '');
+}
+
+function sanitizeKey(rawKey?: string | null): string {
+  if (!rawKey) return '';
+  return rawKey.trim().replace(/^['"]|['"]$/g, '');
+}
+
 export function getSupabaseConfig(): { url: string; anonKey: string } {
-  let url =
-    getEnv('SUPABASE_URL') ||
-    getEnv('NEXT_PUBLIC_SUPABASE_URL') ||
-    getEnv('VITE_SUPABASE_URL');
+  // Static references for Vite AST replacement at build time
+  const meta = typeof import.meta !== 'undefined' ? (import.meta as any) : undefined;
+  const viteUrl = (meta?.env?.VITE_SUPABASE_URL || meta?.env?.NEXT_PUBLIC_SUPABASE_URL || '') as string;
+  const viteKey = (meta?.env?.VITE_SUPABASE_ANON_KEY || meta?.env?.NEXT_PUBLIC_SUPABASE_ANON_KEY || '') as string;
 
-  let anonKey =
-    getEnv('SUPABASE_ANON_KEY') ||
-    getEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY') ||
-    getEnv('VITE_SUPABASE_ANON_KEY');
+  const procUrl =
+    (typeof process !== 'undefined' && process.env
+      ? (process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL)
+      : '') || '';
 
-  // Check sessionStorage for interactive admin config fallback
+  const procKey =
+    (typeof process !== 'undefined' && process.env
+      ? (process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY)
+      : '') || '';
+
+  let url = sanitizeUrl(viteUrl || procUrl);
+  let anonKey = sanitizeKey(viteKey || procKey);
+
+  // Check localStorage and sessionStorage for interactive admin config fallback
   if (typeof window !== 'undefined') {
-    const sessionUrl = sessionStorage.getItem(STORAGE_URL_KEY);
-    const sessionKey = sessionStorage.getItem(STORAGE_KEY_KEY);
-    if (!url && sessionUrl) url = sessionUrl;
-    if (!anonKey && sessionKey) anonKey = sessionKey;
+    const savedUrl = localStorage.getItem(STORAGE_URL_KEY) || sessionStorage.getItem(STORAGE_URL_KEY);
+    const savedKey = localStorage.getItem(STORAGE_KEY_KEY) || sessionStorage.getItem(STORAGE_KEY_KEY);
+    if (!url && savedUrl) url = sanitizeUrl(savedUrl);
+    if (!anonKey && savedKey) anonKey = sanitizeKey(savedKey);
   }
 
-  return { url: url.trim(), anonKey: anonKey.trim() };
+  return { url, anonKey };
 }
 
 export function saveRuntimeSupabaseConfig(url: string, anonKey: string): void {
   if (typeof window !== 'undefined') {
-    if (url && anonKey) {
-      sessionStorage.setItem(STORAGE_URL_KEY, url.trim());
-      sessionStorage.setItem(STORAGE_KEY_KEY, anonKey.trim());
+    const cleanUrl = sanitizeUrl(url);
+    const cleanKey = sanitizeKey(anonKey);
+    if (cleanUrl && cleanKey) {
+      localStorage.setItem(STORAGE_URL_KEY, cleanUrl);
+      localStorage.setItem(STORAGE_KEY_KEY, cleanKey);
+      sessionStorage.setItem(STORAGE_URL_KEY, cleanUrl);
+      sessionStorage.setItem(STORAGE_KEY_KEY, cleanKey);
     } else {
+      localStorage.removeItem(STORAGE_URL_KEY);
+      localStorage.removeItem(STORAGE_KEY_KEY);
       sessionStorage.removeItem(STORAGE_URL_KEY);
       sessionStorage.removeItem(STORAGE_KEY_KEY);
     }
