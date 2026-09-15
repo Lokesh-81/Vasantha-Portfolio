@@ -108,21 +108,23 @@ export function StudioAuth({ onSuccess, onExit }: StudioAuthProps) {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#0B132B] flex flex-col items-center justify-center p-4 sm:p-6 text-[#E0E7FF] font-sans relative overflow-hidden">
+    <div className="min-h-screen h-screen w-full bg-[#0B132B] flex flex-col items-center justify-start p-4 sm:p-6 py-8 sm:py-14 text-[#E0E7FF] font-sans relative overflow-y-auto overscroll-contain">
       {/* Background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-blue-600/15 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-blue-600/15 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
       {/* Top back button */}
-      <button
-        type="button"
-        onClick={onExit}
-        className="absolute top-6 left-6 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#94A3B8] hover:text-white transition-colors cursor-pointer"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Return to Portfolio</span>
-      </button>
+      <div className="w-full max-w-md flex items-center justify-start mb-5 z-20 shrink-0">
+        <button
+          type="button"
+          onClick={onExit}
+          className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#94A3B8] hover:text-white transition-colors cursor-pointer bg-[#111827]/80 hover:bg-[#1F2937] px-3.5 py-1.5 rounded-full border border-[#1F2937]"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Return to Portfolio</span>
+        </button>
+      </div>
 
-      <div className="relative z-10 w-full max-w-md rounded-3xl border border-[#1F2937] bg-[#111827]/90 p-8 sm:p-10 backdrop-blur-2xl shadow-2xl">
+      <div className="relative z-10 w-full max-w-md rounded-3xl border border-[#1F2937] bg-[#111827]/90 p-8 sm:p-10 backdrop-blur-2xl shadow-2xl mb-12 shrink-0">
         {/* Header */}
         <div className="flex flex-col items-center text-center mb-8">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25 mb-4">
