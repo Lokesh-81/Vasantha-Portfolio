@@ -56,14 +56,6 @@ export function Footer({ onNavigate }: FooterProps) {
             >
               WhatsApp
             </a>
-            <span className="text-[#334155]">·</span>
-            <button
-              type="button"
-              onClick={() => onNavigate?.('studio')}
-              className="hover:text-[#A5B4FC] transition-colors cursor-pointer text-[#64748B]"
-            >
-              Studio
-            </button>
           </div>
         </div>
 

@@ -1,8 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Shield, Mail, Lock, LogIn, UserPlus, AlertCircle, ArrowLeft, CheckCircle2, Settings, Key, Link as LinkIcon, Eye, EyeOff } from 'lucide-react';
-import { getSupabaseClient, isSupabaseConfigured, getSupabaseConfig, saveRuntimeSupabaseConfig } from '@/lib/supabase/client';
+import React, { useState } from 'react';
+import {
+  Shield,
+  Mail,
+  Lock,
+  LogIn,
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
+import { getSupabaseClient, isSupabaseConfigured, getSupabaseConfig } from '@/lib/supabase/client';
 
 interface StudioAuthProps {
   onSuccess: () => void;
@@ -10,36 +20,12 @@ interface StudioAuthProps {
 }
 
 export function StudioAuth({ onSuccess, onExit }: StudioAuthProps) {
-  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  // Quick Connection Config modal/toggle for troubleshooting
-  const [showConfigModal, setShowConfigModal] = useState(false);
-  const [configUrl, setConfigUrl] = useState('');
-  const [configKey, setConfigKey] = useState('');
-  const [configSavedNotice, setConfigSavedNotice] = useState(false);
-
-  useEffect(() => {
-    const current = getSupabaseConfig();
-    setConfigUrl(current.url);
-    setConfigKey(current.anonKey);
-  }, []);
-
-  const handleSaveConfig = (e: React.FormEvent) => {
-    e.preventDefault();
-    saveRuntimeSupabaseConfig(configUrl, configKey);
-    setConfigSavedNotice(true);
-    setErrorMessage(null);
-    setTimeout(() => {
-      setConfigSavedNotice(false);
-      setShowConfigModal(false);
-    }, 1200);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,33 +81,15 @@ export function StudioAuth({ onSuccess, onExit }: StudioAuthProps) {
     }
 
     try {
-      if (isSignUp) {
-        const { data, error } = await client.auth.signUp({
-          email: email.trim(),
-          password,
-        });
+      const { data, error } = await client.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-        if (error) throw error;
+      if (error) throw error;
 
-        if (data.session) {
-          onSuccess();
-        } else {
-          setSuccessMessage(
-            'Admin account created! If email confirmation is enabled on your Supabase project, check your inbox; otherwise, you may sign in.'
-          );
-          setIsSignUp(false);
-        }
-      } else {
-        const { data, error } = await client.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
-
-        if (error) throw error;
-
-        if (data.session) {
-          onSuccess();
-        }
+      if (data.session) {
+        onSuccess();
       }
     } catch (err: any) {
       console.error('Auth error:', err);
@@ -188,7 +156,7 @@ export function StudioAuth({ onSuccess, onExit }: StudioAuthProps) {
             Studio Admin Portal
           </h1>
           <p className="text-xs text-[#94A3B8] mt-1.5">
-            Authenticate with your Supabase Admin credentials to manage content and media.
+            Authenticate with your administrator credentials to manage content and media.
           </p>
         </div>
 
@@ -196,18 +164,7 @@ export function StudioAuth({ onSuccess, onExit }: StudioAuthProps) {
         {errorMessage && (
           <div className="mb-6 rounded-2xl border border-rose-800/60 bg-rose-950/40 p-4 text-xs text-rose-300 flex items-start gap-3">
             <AlertCircle className="h-4 w-4 shrink-0 text-rose-400 mt-0.5" />
-            <div className="space-y-2">
-              <p className="leading-relaxed">{errorMessage}</p>
-              {!showConfigModal && (
-                <button
-                  type="button"
-                  onClick={() => setShowConfigModal(true)}
-                  className="underline text-rose-200 hover:text-white font-medium block cursor-pointer"
-                >
-                  Click here to check/enter Supabase URL & Key
-                </button>
-              )}
-            </div>
+            <p className="leading-relaxed">{errorMessage}</p>
           </div>
         )}
 
@@ -270,11 +227,6 @@ export function StudioAuth({ onSuccess, onExit }: StudioAuthProps) {
           >
             {loading ? (
               <span>Authenticating...</span>
-            ) : isSignUp ? (
-              <>
-                <UserPlus className="h-4 w-4" />
-                <span>Create Admin Account</span>
-              </>
             ) : (
               <>
                 <LogIn className="h-4 w-4" />
@@ -284,80 +236,12 @@ export function StudioAuth({ onSuccess, onExit }: StudioAuthProps) {
           </button>
         </form>
 
-        {/* Toggle sign in / sign up */}
-        <div className="mt-6 pt-6 border-t border-[#1F2937] flex flex-col items-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setErrorMessage(null);
-              setSuccessMessage(null);
-            }}
-            className="text-xs text-[#94A3B8] hover:text-[#60A5FA] transition-colors cursor-pointer"
-          >
-            {isSignUp ? 'Already have an account? Sign in' : 'First time setting up? Create Admin account'}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowConfigModal(!showConfigModal)}
-            className="inline-flex items-center gap-1.5 text-[11px] text-[#64748B] hover:text-[#A5B4FC] transition-colors cursor-pointer"
-          >
-            <Settings className="h-3 w-3" />
-            <span>{showConfigModal ? 'Hide Connection Settings' : 'Configure Connection Keys'}</span>
-          </button>
+        {/* Discreet security note */}
+        <div className="mt-6 pt-5 border-t border-[#1F2937]/70 text-center">
+          <p className="text-[11px] text-[#64748B] font-mono">
+            Authorized administrator access only
+          </p>
         </div>
-
-        {/* Collapsible Direct Credentials Config for Zero-Downtime Troubleshooting */}
-        {showConfigModal && (
-          <form onSubmit={handleSaveConfig} className="mt-5 rounded-2xl border border-[#334155] bg-[#0B132B] p-4 text-xs space-y-3">
-            <div className="flex items-center justify-between pb-1 border-b border-[#1F2937]">
-              <span className="font-semibold text-white flex items-center gap-1.5">
-                <Settings className="h-3.5 w-3.5 text-[#60A5FA]" />
-                Supabase Credentials
-              </span>
-              {configSavedNotice && (
-                <span className="text-[10px] text-emerald-400 font-mono">Saved!</span>
-              )}
-            </div>
-            <div>
-              <label className="block text-[10px] font-mono uppercase text-[#94A3B8] mb-1">
-                Project URL (e.g. https://xyz.supabase.co)
-              </label>
-              <div className="relative">
-                <LinkIcon className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#64748B]" />
-                <input
-                  type="text"
-                  value={configUrl}
-                  onChange={(e) => setConfigUrl(e.target.value)}
-                  placeholder="https://your-project.supabase.co"
-                  className="w-full rounded-lg border border-[#1F2937] bg-[#111827] pl-8 pr-3 py-2 text-xs text-white placeholder-[#475569] outline-none focus:border-[#60A5FA]"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-[10px] font-mono uppercase text-[#94A3B8] mb-1">
-                Anon / Public API Key
-              </label>
-              <div className="relative">
-                <Key className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#64748B]" />
-                <input
-                  type="password"
-                  value={configKey}
-                  onChange={(e) => setConfigKey(e.target.value)}
-                  placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI..."
-                  className="w-full rounded-lg border border-[#1F2937] bg-[#111827] pl-8 pr-3 py-2 text-xs text-white placeholder-[#475569] outline-none focus:border-[#60A5FA]"
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-[#3B82F6] hover:bg-[#2563EB] text-white py-2 font-medium transition-colors cursor-pointer"
-            >
-              Save Credentials to Browser
-            </button>
-          </form>
-        )}
       </div>
     </div>
   );

@@ -21,37 +21,65 @@ export type SectionId = 'home' | 'about' | 'projects' | 'work' | 'skills' | 'exp
 function PortfolioContent() {
   const [activeSection, setActiveSection] = useState<SectionId>('home');
 
-  // Support direct URL hash loading on mount and hashchange
+  // Support direct URL path (/studio) and hash loading on mount, hashchange, and popstate
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const handleHash = () => {
+      const handleLocation = () => {
         const hash = window.location.hash.replace('#', '') as SectionId;
-        const pathname = window.location.pathname;
-        if (pathname.startsWith('/studio') || hash === 'studio') {
+        const pathname = window.location.pathname.replace(/\/+$/, '');
+        if (pathname === '/studio' || pathname.startsWith('/studio') || hash === 'studio') {
           setActiveSection('studio');
           return;
         }
-        if (['home', 'about', 'projects', 'work', 'skills', 'experience', 'contact', 'studio'].includes(hash)) {
+        if (['home', 'about', 'projects', 'work', 'skills', 'experience', 'contact'].includes(hash)) {
           setActiveSection(hash === 'work' ? 'projects' : hash);
+        } else {
+          setActiveSection('home');
         }
       };
-      handleHash();
-      window.addEventListener('hashchange', handleHash);
-      return () => window.removeEventListener('hashchange', handleHash);
+      handleLocation();
+      window.addEventListener('hashchange', handleLocation);
+      window.addEventListener('popstate', handleLocation);
+      return () => {
+        window.removeEventListener('hashchange', handleLocation);
+        window.removeEventListener('popstate', handleLocation);
+      };
     }
   }, []);
 
+  const handleExitStudio = () => {
+    setActiveSection('home');
+    if (typeof window !== 'undefined') {
+      if (window.location.pathname.startsWith('/studio')) {
+        window.history.pushState(null, '', '/');
+      } else {
+        window.history.replaceState(null, '', '#home');
+      }
+    }
+  };
+
   const handleNavigate = (sectionId: string) => {
+    if (sectionId === 'studio') {
+      setActiveSection('studio');
+      if (typeof window !== 'undefined') {
+        window.history.pushState(null, '', '/studio');
+      }
+      return;
+    }
     const validSection = (sectionId === 'work' ? 'projects' : sectionId) as SectionId;
     setActiveSection(validSection);
     if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', `#${validSection}`);
+      if (window.location.pathname.startsWith('/studio')) {
+        window.history.pushState(null, '', `/#${validSection}`);
+      } else {
+        window.history.replaceState(null, '', `#${validSection}`);
+      }
     }
   };
 
   // If in Studio mode, render the Admin Studio interface directly
   if (activeSection === 'studio') {
-    return <StudioApp onExit={() => handleNavigate('home')} />;
+    return <StudioApp onExit={handleExitStudio} />;
   }
 
   // Determine current active section for dock indicator
