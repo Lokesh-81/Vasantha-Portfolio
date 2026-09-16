@@ -14,6 +14,7 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Upload,
+  Key,
 } from 'lucide-react';
 import { usePortfolio } from '@/lib/portfolio-context';
 import type { Database } from '@/lib/supabase/types';
@@ -110,6 +111,15 @@ export function StudioDashboard({ onNavigateTab, unreadMessagesCount, recentMess
                 {fromDatabase ? 'Supabase Live Connected' : 'Local Fallback Mode'}
               </span>
             </div>
+
+            <button
+              type="button"
+              onClick={() => onNavigateTab('settings')}
+              className="flex items-center gap-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3.5 py-2 text-xs font-semibold text-[#60A5FA] hover:bg-blue-500/20 hover:text-white transition-colors cursor-pointer"
+            >
+              <Key className="h-3.5 w-3.5" />
+              <span>Change Password / Username</span>
+            </button>
 
             <button
               type="button"

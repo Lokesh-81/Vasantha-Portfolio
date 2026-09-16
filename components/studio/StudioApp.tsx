@@ -82,23 +82,40 @@ export function StudioApp({ onExit }: StudioAppProps) {
     }
   }, []);
 
-  // Monitor Supabase Auth
+  // Monitor Supabase Auth & Local Session
   useEffect(() => {
+    const localSessionStr = typeof window !== 'undefined' ? localStorage.getItem('vasantha_local_admin_session') : null;
+    let localSession: any = null;
+    if (localSessionStr) {
+      try {
+        localSession = JSON.parse(localSessionStr);
+      } catch {}
+    }
+
     const client = getSupabaseClient();
     if (!client || !isSupabaseConfigured()) {
+      if (localSession) {
+        setSession(localSession);
+      }
       setCheckingAuth(false);
       return;
     }
 
     client.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+      if (session) {
+        setSession(session);
+      } else if (localSession) {
+        setSession(localSession);
+      }
       setCheckingAuth(false);
     });
 
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+      if (session) {
+        setSession(session);
+      }
       setCheckingAuth(false);
     });
 
@@ -116,7 +133,12 @@ export function StudioApp({ onExit }: StudioAppProps) {
   const handleLogout = async () => {
     const client = getSupabaseClient();
     if (client) {
-      await client.auth.signOut();
+      try {
+        await client.auth.signOut();
+      } catch {}
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('vasantha_local_admin_session');
     }
     setSession(null);
   };
@@ -137,6 +159,12 @@ export function StudioApp({ onExit }: StudioAppProps) {
 
   const unreadCount = messages.filter((m) => m.status === 'new').length;
 
+  const currentUsername =
+    session?.user?.user_metadata?.username ||
+    session?.user?.user_metadata?.display_name ||
+    (typeof window !== 'undefined' ? localStorage.getItem('vasantha_studio_username') : null) ||
+    (session?.user?.email ? session.user.email.split('@')[0] : 'admin');
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'profile', label: 'Profile', icon: User },
@@ -155,7 +183,7 @@ export function StudioApp({ onExit }: StudioAppProps) {
     },
     { id: 'media', label: 'Media', icon: ImageIcon },
     { id: 'resume', label: 'Resume', icon: FileText },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'settings', label: 'Settings & Security', icon: Settings },
   ];
 
   return (
@@ -240,12 +268,30 @@ export function StudioApp({ onExit }: StudioAppProps) {
 
         {/* Sidebar Footer */}
         <div className="pt-4 border-t border-[#1F2937] space-y-2 mt-6">
-          <div className="px-2 py-1">
-            <p className="text-[10px] font-mono uppercase text-[#64748B]">Signed in as</p>
-            <p className="text-xs font-mono text-[#CBD5E1] truncate" title={session.user?.email}>
-              {session.user?.email || 'admin'}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('settings');
+              setSidebarOpen(false);
+            }}
+            className="w-full text-left p-2 rounded-xl bg-[#0B132B] hover:bg-[#1E293B] border border-[#1F2937] hover:border-[#60A5FA] transition-colors cursor-pointer group"
+            title="Manage account credentials, username & password"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-mono uppercase text-[#64748B] group-hover:text-[#60A5FA]">
+                Administrator
+              </span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-[#60A5FA] border border-blue-500/20">
+                Security
+              </span>
+            </div>
+            <p className="text-xs font-mono font-semibold text-white truncate mt-0.5">
+              @{currentUsername}
             </p>
-          </div>
+            <p className="text-[11px] font-mono text-[#94A3B8] truncate" title={session.user?.email}>
+              {session.user?.email || 'admin@vasantha.studio'}
+            </p>
+          </button>
 
           <button
             type="button"
@@ -289,7 +335,12 @@ export function StudioApp({ onExit }: StudioAppProps) {
         )}
         {activeTab === 'media' && <StudioMedia />}
         {activeTab === 'resume' && <StudioResume />}
-        {activeTab === 'settings' && <StudioSettings />}
+        {activeTab === 'settings' && (
+          <StudioSettings
+            session={session}
+            onSessionUpdate={(updatedSession) => setSession(updatedSession)}
+          />
+        )}
       </main>
     </div>
   );
