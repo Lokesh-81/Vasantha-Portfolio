@@ -25,14 +25,14 @@ function PortfolioContent() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const handleLocation = () => {
-        const hash = window.location.hash.replace('#', '') as SectionId;
-        const pathname = window.location.pathname.replace(/\/+$/, '');
-        if (pathname === '/studio' || pathname.startsWith('/studio') || hash === 'studio') {
+        const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
+        const pathname = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+        if (pathname === '/studio' || pathname.startsWith('/studio') || hash === 'studio' || hash.startsWith('studio')) {
           setActiveSection('studio');
           return;
         }
         if (['home', 'about', 'projects', 'work', 'skills', 'experience', 'contact'].includes(hash)) {
-          setActiveSection(hash === 'work' ? 'projects' : hash);
+          setActiveSection(hash === 'work' ? 'projects' : (hash as SectionId));
         } else {
           setActiveSection('home');
         }
