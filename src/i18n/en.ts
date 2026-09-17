@@ -64,9 +64,11 @@ export const en = {
   'work.filter.all': 'All Projects',
   'work.filter.power': 'Power Systems',
   'work.filter.iot': 'Embedded & IoT',
+  'work.filter.stock': 'AI / Stock Intelligence',
   'work.status.completed': 'Completed',
   'work.keyContributions': 'Project Highlights & Architecture',
   'work.technologies': 'Technologies Used',
+  'work.viewDetails': 'View Project Details',
 
   // Skills Section
   'skills.tag': 'TECHNICAL PROFICIENCY',

@@ -34,7 +34,8 @@ export interface ProjectItem {
   status: string;
   accentColor: string;
   gradient?: string;
-  graphicType?: 'fidvr' | 'battery';
+  graphicType?: 'fidvr' | 'battery' | 'stock' | 'lumora' | string;
+  imageUrl?: string | null;
 }
 
 export interface SkillItem {
@@ -240,6 +241,34 @@ export const projectsList: ProjectItem[] = [
     accentColor: "#F472B6",
     gradient: "from-pink-900/40 via-rose-950/20 to-black/60",
     graphicType: "battery"
+  },
+  {
+    id: "lumora-ai",
+    number: "03",
+    name: "Lumora AI",
+    category: "AI / Stock Intelligence",
+    tagline: "AI-powered stock intelligence & financial data analysis platform",
+    description: "Lumora AI is an AI-powered stock intelligence platform focused on helping users understand and analyze normal stock-market data through AI-assisted insights and financial data.",
+    details: [
+      "AI-powered stock intelligence platform for analyzing normal market data",
+      "AI-assisted insights to understand normal stock-market trends and financial indicators",
+      "Integration with financial and market data APIs for stock data exploration",
+      "Responsive interface built with modern web technologies for intuitive data visualization"
+    ],
+    technologies: [
+      "AI",
+      "Generative AI",
+      "Stock Market Data",
+      "Financial Data",
+      "APIs",
+      "Modern Web Technologies"
+    ],
+    year: "2024 – 2025",
+    status: "Completed",
+    accentColor: "#A78BFA",
+    gradient: "from-purple-900/40 via-indigo-950/20 to-black/60",
+    graphicType: "placeholder",
+    imageUrl: null
   }
 ];
 

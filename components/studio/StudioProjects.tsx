@@ -64,9 +64,9 @@ export function StudioProjects() {
       technologies: Array.isArray(item.technologies) ? item.technologies.join(', ') : '',
       year: item.year || '2024 – 2025',
       status: item.status || 'Completed',
-      accent_color: item.accentColor || '#60A5FA',
-      graphic_type: item.graphicType || 'fidvr',
-      image_url: item.imageUrl || '',
+      accent_color: item.accentColor || item.accent_color || '#60A5FA',
+      graphic_type: item.graphicType || item.graphic_type || 'stock',
+      image_url: item.imageUrl || item.image_url || '',
       sort_order: item.sort_order || 1,
     });
     setError(null);
@@ -340,6 +340,36 @@ export function StudioProjects() {
               placeholder="MATLAB, Simulink, PV-STATCOM, Power Systems"
               className="w-full rounded-xl border border-[#1F2937] bg-[#0B132B] px-3.5 py-2 text-sm text-white focus:border-[#60A5FA] outline-none"
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-mono uppercase text-[#A5B4FC] mb-1">
+                Visual Graphic / Architecture Style
+              </label>
+              <select
+                value={form.graphic_type}
+                onChange={(e) => setForm({ ...form, graphic_type: e.target.value })}
+                className="w-full rounded-xl border border-[#1F2937] bg-[#0B132B] px-3.5 py-2 text-sm text-white focus:border-[#60A5FA] outline-none"
+              >
+                <option value="placeholder">Image / Placeholder (YOUR IMAGE HERE)</option>
+                <option value="fidvr">MATLAB / Simulink FIDVR Voltage Waveform</option>
+                <option value="battery">Smart Charge Guardian Embedded Architecture</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono uppercase text-[#A5B4FC] mb-1">
+                Accent Color (Hex)
+              </label>
+              <input
+                type="text"
+                value={form.accent_color}
+                onChange={(e) => setForm({ ...form, accent_color: e.target.value })}
+                placeholder="#A78BFA"
+                className="w-full rounded-xl border border-[#1F2937] bg-[#0B132B] px-3.5 py-2 text-sm text-white focus:border-[#60A5FA] outline-none"
+              />
+            </div>
           </div>
 
           {/* Image upload */}

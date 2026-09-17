@@ -198,6 +198,32 @@ INSERT INTO public.projects (
   '#F472B6',
   'battery',
   2
+),
+(
+  '03',
+  'Lumora AI',
+  'AI / Stock Intelligence',
+  'AI-powered stock intelligence & financial data analysis platform',
+  'Lumora AI is an AI-powered stock intelligence platform focused on helping users understand and analyze normal stock-market data through AI-assisted insights and financial data.',
+  ARRAY[
+    'AI-powered stock intelligence platform for analyzing normal market data',
+    'AI-assisted insights to understand normal stock-market trends and financial indicators',
+    'Integration with financial and market data APIs for stock data exploration',
+    'Responsive interface built with modern web technologies for intuitive data visualization'
+  ],
+  ARRAY[
+    'AI',
+    'Generative AI',
+    'Stock Market Data',
+    'Financial Data',
+    'APIs',
+    'Modern Web Technologies'
+  ],
+  '2024 – 2025',
+  'Completed',
+  '#A78BFA',
+  'placeholder',
+  3
 );
 
 -- 5. SEED SKILLS
