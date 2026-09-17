@@ -147,7 +147,7 @@ export async function fetchPortfolioData(): Promise<FetchedPortfolioData> {
             year: p.year || '2024 – 2025',
             status: p.status || 'Completed',
             accentColor: p.accent_color || (idx === 0 ? '#60A5FA' : idx === 1 ? '#F472B6' : '#A78BFA'),
-            graphicType: (p.graphic_type as any) || (idx === 0 ? 'fidvr' : idx === 1 ? 'battery' : 'placeholder'),
+            graphicType: (p.graphic_type as any) || (idx === 0 ? 'fidvr' : idx === 1 ? 'battery' : 'none'),
             imageUrl: p.image_url || null,
           }))
         : fallbackProjects;

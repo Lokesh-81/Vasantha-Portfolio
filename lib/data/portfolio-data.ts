@@ -267,7 +267,7 @@ export const projectsList: ProjectItem[] = [
     status: "Completed",
     accentColor: "#A78BFA",
     gradient: "from-purple-900/40 via-indigo-950/20 to-black/60",
-    graphicType: "placeholder",
+    graphicType: "none",
     imageUrl: null
   }
 ];

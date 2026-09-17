@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   CheckCircle2,
   Cpu,
@@ -9,12 +9,8 @@ import {
   Activity,
   Radio,
   Layers,
-  ChevronRight,
   ShieldCheck,
   Thermometer,
-  Eye,
-  X,
-  Image as ImageIcon,
 } from 'lucide-react';
 import { TextEffect } from '@/components/core/text-effect';
 import { Spotlight } from '@/components/core/spotlight';
@@ -26,7 +22,6 @@ export function ProjectsSection() {
   const { t, language } = useLanguage();
   const { projects } = usePortfolio();
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
 
   const activeProjects = projects && projects.length > 0 ? projects : projectsList;
 
@@ -38,17 +33,6 @@ export function ProjectsSection() {
     if (selectedCategory === 'All') return true;
     return project.category === selectedCategory;
   });
-
-  // Keyboard shortcut listener for Esc to close modal
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSelectedProject(null);
-    };
-    if (selectedProject) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [selectedProject]);
 
   const renderProjectGraphic = (project: ProjectItem) => {
     if (project.imageUrl) {
@@ -139,18 +123,7 @@ export function ProjectsSection() {
       );
     }
 
-    // Default / Placeholder Graphic (no graph)
-    return (
-      <div className="relative h-28 sm:h-32 w-full rounded-xl border border-dashed border-[#1F2937] bg-[#111827]/60 flex flex-col items-center justify-center text-center p-4 group-hover:border-[#60A5FA]/40 transition-colors">
-        <ImageIcon className="h-6 w-6 text-[#64748B] mb-1.5" />
-        <span className="text-[11px] font-mono font-medium tracking-wider text-[#94A3B8] uppercase">
-          YOUR IMAGE HERE
-        </span>
-        <span className="text-[9px] text-[#475569] mt-0.5 font-mono">
-          Upload via Admin Studio
-        </span>
-      </div>
-    );
+    return null;
   };
 
   return (
@@ -261,10 +234,12 @@ export function ProjectsSection() {
                   {project.description}
                 </p>
 
-                {/* Schematic / Visual Graphic Preview */}
-                <div className="mt-6 overflow-hidden rounded-2xl border border-[#1F2937] bg-[#0B132B]/90 p-4">
-                  {renderProjectGraphic(project)}
-                </div>
+                {/* Schematic / Visual Graphic Preview if available */}
+                {renderProjectGraphic(project) ? (
+                  <div className="mt-6 overflow-hidden rounded-2xl border border-[#1F2937] bg-[#0B132B]/90 p-4">
+                    {renderProjectGraphic(project)}
+                  </div>
+                ) : null}
 
                 {/* Key Highlights & Implementation List */}
                 <div className="mt-6 space-y-2.5">
@@ -282,8 +257,8 @@ export function ProjectsSection() {
                 </div>
               </div>
 
-              {/* Technologies List & Modal Trigger */}
-              <div className="mt-6 border-t border-[#1F2937] pt-4 space-y-3">
+              {/* Technologies List */}
+              <div className="mt-6 border-t border-[#1F2937] pt-4">
                 <div className="flex flex-wrap gap-1.5">
                   {project.technologies.map((tech) => (
                     <span
@@ -294,128 +269,10 @@ export function ProjectsSection() {
                     </span>
                   ))}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedProject(project)}
-                  className="flex items-center justify-center gap-2 w-full rounded-xl border border-[#1F2937] bg-[#0B132B]/80 hover:bg-[#1F2937]/70 hover:border-[#60A5FA]/50 py-2.5 px-4 text-xs font-semibold text-[#CBD5E1] hover:text-white transition-all cursor-pointer group/btn"
-                >
-                  <Eye className="h-3.5 w-3.5 text-[#60A5FA]" />
-                  <span>{t('work.viewDetails', 'View Project Details')}</span>
-                  <ChevronRight className="h-3.5 w-3.5 text-[#64748B] group-hover/btn:translate-x-0.5 transition-transform" />
-                </button>
               </div>
             </div>
           ))}
         </div>
-
-        {/* Project Detail Modal */}
-        <AnimatePresence>
-          {selectedProject && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md"
-              onClick={() => setSelectedProject(null)}
-            >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-2xl rounded-3xl border border-[#1F2937] bg-[#0B132B]/95 p-6 sm:p-8 shadow-2xl backdrop-blur-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
-              >
-                {/* Close Button */}
-                <button
-                  type="button"
-                  onClick={() => setSelectedProject(null)}
-                  className="absolute top-5 right-5 p-2 rounded-xl border border-[#1F2937] bg-[#111827] text-[#94A3B8] hover:text-white hover:border-[#60A5FA]/50 transition-colors cursor-pointer"
-                  title="Close (Esc)"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-
-                {/* Top badges */}
-                <div className="flex flex-wrap items-center gap-2 pr-12">
-                  <span className="font-mono text-xs font-bold text-[#60A5FA] bg-[#2563EB]/20 border border-[#2563EB]/40 px-2.5 py-0.5 rounded-lg">
-                    PROJECT {selectedProject.number}
-                  </span>
-                  <span className="text-xs font-mono text-[#A5B4FC]">
-                    {selectedProject.category}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2.5 py-0.5 rounded-full ml-auto">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    {selectedProject.status}
-                  </span>
-                </div>
-
-                {/* Project Title */}
-                <h3 className="mt-4 text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                  {selectedProject.name}
-                </h3>
-
-                {/* Tagline */}
-                {selectedProject.tagline && (
-                  <p className="mt-1 text-sm font-medium text-[#A5B4FC]">
-                    {selectedProject.tagline}
-                  </p>
-                )}
-
-                {/* Description */}
-                <p className="mt-4 text-sm leading-relaxed text-[#CBD5E1]">
-                  {selectedProject.description}
-                </p>
-
-                {/* Schematic Preview */}
-                <div className="mt-6 overflow-hidden rounded-2xl border border-[#1F2937] bg-[#111827]/80 p-4">
-                  {renderProjectGraphic(selectedProject)}
-                </div>
-
-                {/* Key Highlights */}
-                <div className="mt-6 space-y-2.5">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-[#A5B4FC]">
-                    {t('work.keyContributions', 'Key Highlights & Implementation')}
-                  </h4>
-                  <ul className="space-y-2 text-xs text-[#CBD5E1]">
-                    {selectedProject.details.map((detail, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#60A5FA]" />
-                        <span>{detail}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Technologies */}
-                <div className="mt-6 pt-4 border-t border-[#1F2937]">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-[#A5B4FC] mb-2.5">
-                    {t('work.technologies', 'Technologies Used')}
-                  </h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedProject.technologies.map((tech) => (
-                      <span
-                        key={tech}
-                        className="rounded-md border border-[#1F2937] bg-[#111827] px-2.5 py-1 font-mono text-[11px] text-[#CBD5E1]"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Modal Footer */}
-                <div className="mt-8 flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedProject(null)}
-                    className="px-5 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-xs font-semibold text-white transition-colors cursor-pointer"
-                  >
-                    Close Details
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
       </div>
     </section>
   );

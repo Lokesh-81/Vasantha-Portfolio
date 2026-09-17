@@ -222,7 +222,7 @@ INSERT INTO public.projects (
   '2024 – 2025',
   'Completed',
   '#A78BFA',
-  'placeholder',
+  'none',
   3
 );
 

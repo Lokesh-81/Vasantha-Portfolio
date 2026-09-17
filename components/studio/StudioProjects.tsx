@@ -65,7 +65,7 @@ export function StudioProjects() {
       year: item.year || '2024 – 2025',
       status: item.status || 'Completed',
       accent_color: item.accentColor || item.accent_color || '#60A5FA',
-      graphic_type: item.graphicType || item.graphic_type || 'stock',
+      graphic_type: item.graphicType || item.graphic_type || 'none',
       image_url: item.imageUrl || item.image_url || '',
       sort_order: item.sort_order || 1,
     });
@@ -352,7 +352,7 @@ export function StudioProjects() {
                 onChange={(e) => setForm({ ...form, graphic_type: e.target.value })}
                 className="w-full rounded-xl border border-[#1F2937] bg-[#0B132B] px-3.5 py-2 text-sm text-white focus:border-[#60A5FA] outline-none"
               >
-                <option value="placeholder">Image / Placeholder (YOUR IMAGE HERE)</option>
+                <option value="none">None (Clean card without graphic/image)</option>
                 <option value="fidvr">MATLAB / Simulink FIDVR Voltage Waveform</option>
                 <option value="battery">Smart Charge Guardian Embedded Architecture</option>
               </select>
