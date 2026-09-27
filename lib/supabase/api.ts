@@ -171,6 +171,8 @@ export async function fetchPortfolioData(): Promise<FetchedPortfolioData> {
             title: c.title,
             issuer: c.issuer,
             badgeColor: c.badge_color || '#60A5FA',
+            certificate_url: c.certificate_url || null,
+            certificateUrl: c.certificate_url || null,
           }))
         : fallbackCertifications;
 
@@ -510,9 +512,28 @@ export async function deleteLanguage(id: string) {
 }
 
 // Site Settings
+export async function fetchSiteSettings() {
+  const client = getSupabaseClient();
+  if (!client || !isSupabaseConfigured()) {
+    if (typeof window !== 'undefined') {
+      const resume = localStorage.getItem('vasantha_resume_url');
+      if (resume) {
+        return { data: [{ key: 'resume_url', value: resume }], error: null };
+      }
+    }
+    return { data: [], error: null };
+  }
+  return await client.from('site_settings').select('*');
+}
+
 export async function updateSiteSetting(key: string, value: any, description?: string) {
   const client = getSupabaseClient();
-  if (!client) return { error: 'Supabase client not initialized' };
+  if (!client) {
+    if (typeof window !== 'undefined' && key === 'resume_url') {
+      localStorage.setItem('vasantha_resume_url', typeof value === 'string' ? value : JSON.stringify(value));
+    }
+    return { error: null };
+  }
 
   return await (client.from('site_settings') as any).upsert({
     key,
@@ -522,23 +543,454 @@ export async function updateSiteSetting(key: string, value: any, description?: s
   });
 }
 
-// Storage Operations
-export async function uploadStorageFile(bucket: 'portfolio-media' | 'resume', path: string, file: File) {
-  const client = getSupabaseClient();
-  if (!client) return { data: null, error: new Error('Supabase client not initialized') };
+// ==============================================================================
+// STORAGE & MEDIA ASSET MANAGEMENT
+// ==============================================================================
 
-  const { data, error } = await client.storage.from(bucket).upload(path, file, {
-    upsert: true,
+const DEMO_STORAGE_KEY = 'vasantha_demo_storage_portfolio_media';
+
+interface DemoStorageItem {
+  name: string;
+  id: string;
+  metadata: {
+    size: number;
+    mimetype: string;
+    lastModified?: number;
+  };
+  created_at: string;
+  updated_at: string;
+  dataUrl?: string;
+}
+
+function getDefaultDemoStorage(): Record<string, DemoStorageItem[]> {
+  return {
+    profile: [
+      {
+        name: 'vasantha_avatar.jpg',
+        id: 'prof-vasantha-1',
+        metadata: { size: 148420, mimetype: 'image/jpeg' },
+        created_at: '2025-01-15T10:00:00Z',
+        updated_at: '2025-01-15T10:00:00Z',
+      },
+    ],
+    projects: [
+      {
+        name: 'redbull_racing_rb20.jpg',
+        id: 'proj-rb1',
+        metadata: { size: 312540, mimetype: 'image/jpeg' },
+        created_at: '2025-02-10T14:30:00Z',
+        updated_at: '2025-02-10T14:30:00Z',
+      },
+      {
+        name: 'pv_statcom_fidvr_model.png',
+        id: 'proj-fidvr-1',
+        metadata: { size: 189200, mimetype: 'image/png' },
+        created_at: '2025-02-01T09:15:00Z',
+        updated_at: '2025-02-01T09:15:00Z',
+      },
+      {
+        name: 'smart_charge_guardian_schematic.png',
+        id: 'proj-battery-2',
+        metadata: { size: 224800, mimetype: 'image/png' },
+        created_at: '2025-02-05T11:20:00Z',
+        updated_at: '2025-02-05T11:20:00Z',
+      },
+      {
+        name: 'redbull_energy_can.png',
+        id: 'proj-rb2',
+        metadata: { size: 98400, mimetype: 'image/png' },
+        created_at: '2025-02-12T16:45:00Z',
+        updated_at: '2025-02-12T16:45:00Z',
+      },
+    ],
+    certificates: [
+      {
+        name: 'cert_ev_basics.pdf',
+        id: 'cert-ev-1',
+        metadata: { size: 452100, mimetype: 'application/pdf' },
+        created_at: '2025-01-20T08:00:00Z',
+        updated_at: '2025-01-20T08:00:00Z',
+      },
+      {
+        name: 'sample_draft_scan.pdf',
+        id: 'cert-orphan-2',
+        metadata: { size: 124300, mimetype: 'application/pdf' },
+        created_at: '2025-01-22T13:10:00Z',
+        updated_at: '2025-01-22T13:10:00Z',
+      },
+    ],
+  };
+}
+
+function getDemoStorageState(): Record<string, DemoStorageItem[]> {
+  if (typeof window === 'undefined') return getDefaultDemoStorage();
+  try {
+    const raw = localStorage.getItem(DEMO_STORAGE_KEY);
+    if (!raw) {
+      const defaults = getDefaultDemoStorage();
+      localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(defaults));
+      return defaults;
+    }
+    return JSON.parse(raw);
+  } catch {
+    return getDefaultDemoStorage();
+  }
+}
+
+function saveDemoStorageState(state: Record<string, DemoStorageItem[]>): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(state));
+  } catch (err) {
+    console.warn('Failed to save demo storage to localStorage:', err);
+  }
+}
+
+function readFileAsDataUrl(file: File | Blob): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
   });
+}
 
-  if (error) return { data: null, error };
+export async function uploadStorageFile(
+  bucket: 'portfolio-media' | 'resume',
+  path: string,
+  file: File | Blob,
+  options?: { upsert?: boolean; contentType?: string }
+) {
+  const client = getSupabaseClient();
+  const configured = isSupabaseConfigured();
 
-  const { data: urlData } = client.storage.from(bucket).getPublicUrl(path);
-  return { data: { path: data.path, publicUrl: urlData.publicUrl }, error: null };
+  if (client && configured) {
+    try {
+      const { data, error } = await client.storage.from(bucket).upload(path, file, {
+        upsert: options?.upsert ?? true,
+        contentType: options?.contentType || (file instanceof File ? file.type : undefined),
+      });
+
+      if (!error && data) {
+        const { data: urlData } = client.storage.from(bucket).getPublicUrl(path);
+        return { data: { path: data.path, publicUrl: urlData.publicUrl }, error: null };
+      }
+      if (error) {
+        console.warn('Supabase storage upload error:', error);
+      }
+    } catch (err: any) {
+      console.warn('Supabase storage upload exception:', err);
+    }
+  }
+
+  // Demo / local fallback
+  try {
+    const dataUrl = await readFileAsDataUrl(file);
+    const parts = path.split('/');
+    const folder = parts.length > 1 ? parts[0] : 'projects';
+    const fileName = parts.length > 1 ? parts.slice(1).join('/') : path;
+
+    const state = getDemoStorageState();
+    if (!state[folder]) state[folder] = [];
+
+    const existingIdx = state[folder].findIndex((f) => f.name === fileName);
+    const newItem: DemoStorageItem = {
+      name: fileName,
+      id: `local-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      metadata: {
+        size: file.size,
+        mimetype: file.type || 'image/png',
+        lastModified: Date.now(),
+      },
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      dataUrl,
+    };
+
+    if (existingIdx >= 0) {
+      state[folder][existingIdx] = newItem;
+    } else {
+      state[folder].unshift(newItem);
+    }
+    saveDemoStorageState(state);
+
+    const publicUrl = dataUrl || `https://demo-storage.local/${bucket}/${path}`;
+    return { data: { path, publicUrl }, error: null };
+  } catch (err: any) {
+    return { data: null, error: err };
+  }
 }
 
 export async function listStorageFiles(bucket: 'portfolio-media' | 'resume', folder?: string) {
   const client = getSupabaseClient();
-  if (!client) return { data: [], error: 'Supabase client not initialized' };
-  return await client.storage.from(bucket).list(folder || '');
+  const configured = isSupabaseConfigured();
+
+  if (client && configured) {
+    try {
+      const res = await client.storage.from(bucket).list(folder || '', {
+        sortBy: { column: 'created_at', order: 'desc' },
+      });
+      if (!res.error && res.data && res.data.length > 0) {
+        return res;
+      }
+      if (res.error) {
+        console.warn('Supabase storage list returned error:', res.error);
+      }
+    } catch (err) {
+      console.warn('Supabase storage list exception:', err);
+    }
+  }
+
+  // Demo fallback
+  const state = getDemoStorageState();
+  const folderKey = folder || 'profile';
+  const items = state[folderKey] || [];
+  return { data: items, error: null };
 }
+
+export async function deleteStorageFile(bucket: 'portfolio-media' | 'resume', path: string) {
+  return deleteStorageFiles(bucket, [path]);
+}
+
+export async function deleteStorageFiles(bucket: 'portfolio-media' | 'resume', paths: string[]) {
+  const client = getSupabaseClient();
+  const configured = isSupabaseConfigured();
+
+  let storageError: any = null;
+  if (client && configured) {
+    try {
+      const { data, error } = await client.storage.from(bucket).remove(paths);
+      if (!error) {
+        return { data, error: null };
+      }
+      storageError = error;
+      console.warn('Supabase storage remove returned error:', error);
+    } catch (err: any) {
+      storageError = err;
+    }
+  }
+
+  // Remove from demo storage as well
+  const state = getDemoStorageState();
+  for (const path of paths) {
+    const parts = path.split('/');
+    const folder = parts.length > 1 ? parts[0] : 'projects';
+    const fileName = parts.length > 1 ? parts.slice(1).join('/') : path;
+    if (state[folder]) {
+      state[folder] = state[folder].filter((f) => f.name !== fileName);
+    }
+  }
+  saveDemoStorageState(state);
+
+  if (storageError && configured) {
+    return { data: null, error: storageError };
+  }
+  return { data: paths, error: null };
+}
+
+export async function replaceStorageFile(
+  bucket: 'portfolio-media' | 'resume',
+  oldPath: string,
+  newPath: string,
+  file: File
+) {
+  // 1. Upload new replacement
+  const uploadRes = await uploadStorageFile(bucket, newPath, file, { upsert: true });
+  if (uploadRes.error) {
+    return { data: null, error: uploadRes.error };
+  }
+
+  // 2. If path differs, delete old file to prevent orphan duplicates
+  if (oldPath && oldPath !== newPath) {
+    try {
+      await deleteStorageFile(bucket, oldPath);
+    } catch (err) {
+      console.warn('Failed to delete old file during replace:', err);
+    }
+  }
+
+  return uploadRes;
+}
+
+export async function updateAllMediaReferences(
+  oldUrlOrPath: string,
+  newUrl: string,
+  oldFileName: string
+): Promise<{ updatedCount: number; locations: string[] }> {
+  const client = getSupabaseClient();
+  const locations: string[] = [];
+  let updatedCount = 0;
+
+  const matchesOld = (val?: string | null) => {
+    if (!val) return false;
+    const v = val.trim();
+    if (v === newUrl) return false;
+    return v === oldUrlOrPath || v.includes(oldFileName) || (oldUrlOrPath && v.includes(oldUrlOrPath));
+  };
+
+  // 1. LocalStorage overrides
+  if (typeof window !== 'undefined') {
+    try {
+      const cachedProfile = localStorage.getItem('vasantha_profile_override');
+      if (cachedProfile) {
+        const parsed = JSON.parse(cachedProfile);
+        if (matchesOld(parsed.profileImageUrl)) {
+          parsed.profileImageUrl = newUrl;
+          localStorage.setItem('vasantha_profile_override', JSON.stringify(parsed));
+          locations.push('Profile');
+          updatedCount++;
+        }
+      }
+      const cachedResume = localStorage.getItem('vasantha_resume_url');
+      if (matchesOld(cachedResume)) {
+        localStorage.setItem('vasantha_resume_url', newUrl);
+        locations.push('Resume / Document');
+        updatedCount++;
+      }
+    } catch (_) {}
+  }
+
+  // 2. Database records
+  if (client && isSupabaseConfigured()) {
+    try {
+      // Check profiles
+      const { data: profiles } = await client.from('profiles').select('id, profile_image_url');
+      if (profiles && profiles.length > 0) {
+        for (const p of profiles) {
+          if (matchesOld(p.profile_image_url)) {
+            await (client.from('profiles') as any).update({ profile_image_url: newUrl }).eq('id', p.id);
+            if (!locations.includes('Profile')) locations.push('Profile');
+            updatedCount++;
+          }
+        }
+      }
+
+      // Check projects
+      const { data: projects } = await client.from('projects').select('id, name, image_url');
+      if (projects && projects.length > 0) {
+        for (const pr of projects) {
+          if (matchesOld(pr.image_url)) {
+            await (client.from('projects') as any).update({ image_url: newUrl }).eq('id', pr.id);
+            const locName = `Project — ${pr.name}`;
+            if (!locations.includes(locName)) locations.push(locName);
+            updatedCount++;
+          }
+        }
+      }
+
+      // Check certifications
+      const { data: certs } = await client.from('certifications').select('id, title, certificate_url');
+      if (certs && certs.length > 0) {
+        for (const c of certs) {
+          if (matchesOld(c.certificate_url)) {
+            await (client.from('certifications') as any).update({ certificate_url: newUrl }).eq('id', c.id);
+            const locName = `Certification — ${c.title}`;
+            if (!locations.includes(locName)) locations.push(locName);
+            updatedCount++;
+          }
+        }
+      }
+
+      // Check site_settings
+      const { data: settings } = await client.from('site_settings').select('key, value');
+      if (settings && settings.length > 0) {
+        for (const s of settings) {
+          const sVal = typeof s.value === 'string' ? s.value : JSON.stringify(s.value);
+          if (matchesOld(sVal)) {
+            const nextVal = typeof s.value === 'string' ? newUrl : { ...s.value, url: newUrl };
+            await (client.from('site_settings') as any).update({ value: nextVal }).eq('key', s.key);
+            const locName = `Site Setting — ${s.key}`;
+            if (!locations.includes(locName)) locations.push(locName);
+            updatedCount++;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Error updating database references:', err);
+    }
+  }
+
+  return { updatedCount, locations };
+}
+
+export async function clearAllMediaReferences(
+  oldUrlOrPath: string,
+  oldFileName: string
+): Promise<{ clearedCount: number; locations: string[] }> {
+  const client = getSupabaseClient();
+  const locations: string[] = [];
+  let clearedCount = 0;
+
+  const matchesOld = (val?: string | null) => {
+    if (!val) return false;
+    const v = val.trim();
+    return v === oldUrlOrPath || v.includes(oldFileName) || (oldUrlOrPath && v.includes(oldUrlOrPath));
+  };
+
+  // Local storage
+  if (typeof window !== 'undefined') {
+    try {
+      const cachedProfile = localStorage.getItem('vasantha_profile_override');
+      if (cachedProfile) {
+        const parsed = JSON.parse(cachedProfile);
+        if (matchesOld(parsed.profileImageUrl)) {
+          parsed.profileImageUrl = null;
+          localStorage.setItem('vasantha_profile_override', JSON.stringify(parsed));
+          locations.push('Profile');
+          clearedCount++;
+        }
+      }
+      const cachedResume = localStorage.getItem('vasantha_resume_url');
+      if (matchesOld(cachedResume)) {
+        localStorage.removeItem('vasantha_resume_url');
+        locations.push('Resume / Document');
+        clearedCount++;
+      }
+    } catch (_) {}
+  }
+
+  // Database
+  if (client && isSupabaseConfigured()) {
+    try {
+      const { data: profiles } = await client.from('profiles').select('id, profile_image_url');
+      if (profiles && profiles.length > 0) {
+        for (const p of profiles) {
+          if (matchesOld(p.profile_image_url)) {
+            await (client.from('profiles') as any).update({ profile_image_url: null }).eq('id', p.id);
+            if (!locations.includes('Profile')) locations.push('Profile');
+            clearedCount++;
+          }
+        }
+      }
+
+      const { data: projects } = await client.from('projects').select('id, name, image_url');
+      if (projects && projects.length > 0) {
+        for (const pr of projects) {
+          if (matchesOld(pr.image_url)) {
+            await (client.from('projects') as any).update({ image_url: null }).eq('id', pr.id);
+            const locName = `Project — ${pr.name}`;
+            if (!locations.includes(locName)) locations.push(locName);
+            clearedCount++;
+          }
+        }
+      }
+
+      const { data: certs } = await client.from('certifications').select('id, title, certificate_url');
+      if (certs && certs.length > 0) {
+        for (const c of certs) {
+          if (matchesOld(c.certificate_url)) {
+            await (client.from('certifications') as any).update({ certificate_url: null }).eq('id', c.id);
+            const locName = `Certification — ${c.title}`;
+            if (!locations.includes(locName)) locations.push(locName);
+            clearedCount++;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Error clearing database references:', err);
+    }
+  }
+
+  return { clearedCount, locations };
+}
+

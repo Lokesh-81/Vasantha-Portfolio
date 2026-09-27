@@ -54,16 +54,12 @@ export function StudioProfile() {
       const updatedCache = {
         ...parsed,
         name: formData.name,
-        title: formData.title,
-        college: formData.college,
-        degree: formData.degree,
-        cgpa: formData.cgpa,
+        title: formData.headline,
         location: formData.location,
         email: formData.email,
         phone: formData.phone,
         linkedinUrl: formData.linkedin_url,
-        githubUrl: formData.github_url,
-        heroBio: formData.hero_bio,
+        heroBio: formData.bio,
         aboutBio: formData.about_bio,
         aboutSubDescription: formData.about_sub_description,
       };

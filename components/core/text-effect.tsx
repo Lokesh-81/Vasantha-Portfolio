@@ -102,7 +102,7 @@ export function TextEffect({
     return Array.from(children);
   }, [children, per]);
 
-  const MotionComponent = motion[Component as keyof typeof motion] || motion.span;
+  const MotionComponent: any = motion[Component as keyof typeof motion] || motion.span;
 
   return (
     <MotionComponent

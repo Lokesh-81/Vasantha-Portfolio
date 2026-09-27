@@ -33,7 +33,7 @@ export function TextMorph({
     });
   }, [children, uniqueId]);
 
-  const MotionComponent = motion[Component as keyof typeof motion] || motion.span;
+  const MotionComponent: any = motion[Component as keyof typeof motion] || motion.span;
 
   return (
     <MotionComponent

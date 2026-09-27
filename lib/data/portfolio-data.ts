@@ -50,6 +50,8 @@ export interface CertificationItem {
   title: string;
   issuer: string;
   badgeColor?: string;
+  certificate_url?: string | null;
+  certificateUrl?: string | null;
 }
 
 export interface AchievementItem {
